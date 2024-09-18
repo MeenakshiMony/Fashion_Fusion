@@ -46,13 +46,59 @@ Major Steps Included:
             npm start --> Your 
         - install these packages
             npm install ar.js three 
-        - In your public/index.html, add these lines to include A-Frame and AR.js:
+        - In your public/index.html, add these lines to include A-Frame and AR.js and added server.js file:
+        Index.html:
+            <!DOCTYPE html>
+            <html lang="en">
             <head>
-            <!-- A-Frame Library -->
-            <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-            <!-- AR.js for A-Frame -->
-            <script src="https://cdn.rawgit.com/AR-js-org/AR.js/3.3.2/aframe/build/aframe-ar.js"></script>
+                <meta charset="utf-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <meta name="theme-color" content="#000000" />
+                <title>React App</title>
+                <!-- Include A-Frame library -->
+                <script src="https://aframe.io/releases/0.8.2/aframe.min.js"></script>
+                <!-- Include AR.js for A-Frame -->
+                <script src="https://cdn.rawgit.com/jeromeetienne/AR.js/1.6.2/aframe/build/aframe-ar.js"></script>
             </head>
+            <body>
+                <!-- AR scene with Hiro marker -->
+                <a-scene embedded arjs>
+                <a-marker preset="hiro">
+                    <!-- Blue box with animation -->
+                    <a-box position="0 0.5 0" material="color: blue;">
+                    <a-animation attribute="rotation"
+                                dur="3000"
+                                to="360 360 360"
+                                repeat="indefinite"
+                                easing="linear">
+                    </a-animation>
+                    </a-box>
+                </a-marker>
+                <!-- Camera entity -->
+                <a-entity camera></a-entity>
+                </a-scene>
+            </body>
+            </html>
+        server.js:
+            const express = require('express');
+            const app = express();
+            const path = require('path');
+
+            app.set("/", "html");
+            app.use(express.static(path.join(__dirname,"/")));
+            app.use(express.json());
+            app.use(express.urlencoded({extended: false}));
+
+            app.get('/',(req,res) => {
+                res.render('index');
+            });
+
+            app.listen(8080, () => {
+                console.log("Listening on http://localhost:8080");
+            });            
+        hiro marker link: https://jeromeetienne.github.io/AR.js/data/images/HIRO.jpg
+
+
         Note: The warning you're seeing indicates that the line endings in your .gitignore file are set to Unix-style (LF), but your system is using Windows-style (CRLF). Git is warning you that it will convert these line endings the next time it modifies the file.
             git config --global core.autocrlf input --> This setting tells Git: 
             On Unix/Linux/macOS: Git will use LF for line endings.
