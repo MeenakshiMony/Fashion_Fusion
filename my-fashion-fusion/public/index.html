@@ -1,34 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <title>React App</title>
-    <!-- Include A-Frame library -->
-    <script src="https://aframe.io/releases/0.8.2/aframe.min.js"></script>
-    <!-- Include AR.js for A-Frame -->
-    <script src="https://cdn.rawgit.com/jeromeetienne/AR.js/1.6.2/aframe/build/aframe-ar.js"></script>
-  </head>
-  <body>
-    <!-- AR scene with Hiro marker -->
-    <a-scene embedded arjs>
-      <a-marker preset="hiro">
-        <!-- Blue box with animation -->
-        <a-box position="0 0.5 0" material="color: blue;">
-          <a-animation attribute="rotation"
-                       dur="3000"
-                       to="360 360 360"
-                       repeat="indefinite"
-                       easing="linear">
-          </a-animation>
-        </a-box>
-      </a-marker>
-      <!-- Camera entity -->
-      <a-entity camera></a-entity>
-    </a-scene>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Fashion Fusion: A virtual fashion assistant platform integrating AI and AR technologies.">
+  <title>Fashion Fusion</title>
+  <link rel="icon" href="%PUBLIC_URL%/favicon.ico">
+  <link rel="stylesheet" href="%PUBLIC_URL%/styles/App.css">
+</head>
+<body>
+  <div id="root"></div>
+  <script src="%PUBLIC_URL%/index.js"></script>
+</body>
 </html>
-
-
-
