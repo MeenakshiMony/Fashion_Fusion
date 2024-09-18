@@ -1,0 +1,64 @@
+Project Structure:
+1. index.html
+    Purpose: The main HTML file that serves as the entry point for your application.
+    Includes: Links to CSS files, JavaScript libraries (like A-Frame and AR.js), and your main JavaScript file.
+    Key Elements: <script> tags for including A-Frame and AR.js, and a root element where your React app is rendered.
+2. index.js
+    Purpose: The entry point for your React application.
+    Includes: Renders the main React component (App) into the root element of index.html.
+    Key Elements: ReactDOM rendering logic, potentially includes service workers or other initialization code.
+3. App.js
+    Purpose: Main React component that defines the structure and content of your application.
+    Includes: Your AR scene setup and any other components.
+    Key Elements: JSX structure, components like <ARScene />, and potentially state management or other React logic.
+4. ARScene.js (if separate from App.js)
+    Purpose: Defines the AR scene using A-Frame and AR.js.
+    Includes: AR.js configuration, A-Frame elements like <a-scene>, <a-box>, and markers.
+    Key Elements: AR.js setup, A-Frame scene configuration, and 3D elements.
+5. App.test.js
+    Purpose: Contains tests for your React components to ensure they work as expected.
+    Includes: Test cases using testing libraries (e.g., React Testing Library).
+    Key Elements: Test functions, assertions, and setup for rendering components and checking their behavior.
+6. package.json
+    Purpose: Defines the project's dependencies, scripts, and metadata.
+    Includes: List of dependencies (react, aframe, ar.js), scripts for building and running the application, and project configurations.
+    Key Elements: dependencies, devDependencies, scripts, and project information.
+7. package-lock.json
+    Purpose: Ensures consistent installations of dependencies by locking their versions.
+    Includes: Detailed versioning information for all installed packages.
+    Key Elements: Dependency tree and version constraints.
+
+
+Package Installing:
+    - how to install latest packages--> npm install aframe@latest ar.js@latest [ use @latest ] or specific version [ use @1.2.0 etc.]
+    - to get audit report --> npm audit
+    - to update changes --> npm audit fix
+    - to update changes all issues including breaking changes--> npm audit fix --force
+
+Major Steps Included:
+    1.Initial setup:
+        - go into folder: 
+            mkdir fashion-fusion-tryon
+            cd fashion-fusion-tryon
+        - create a package.json file, which keeps track of your project’s dependencies (libraries)
+            npm init -y 
+        - React app will open in your default web browser at http://localhost:3000. Ctrl + C --> to close the local hosting
+            npm start --> Your 
+        - install these packages
+            npm install ar.js three 
+        - In your public/index.html, add these lines to include A-Frame and AR.js:
+            <head>
+            <!-- A-Frame Library -->
+            <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+            <!-- AR.js for A-Frame -->
+            <script src="https://cdn.rawgit.com/AR-js-org/AR.js/3.3.2/aframe/build/aframe-ar.js"></script>
+            </head>
+        Note: The warning you're seeing indicates that the line endings in your .gitignore file are set to Unix-style (LF), but your system is using Windows-style (CRLF). Git is warning you that it will convert these line endings the next time it modifies the file.
+            git config --global core.autocrlf input --> This setting tells Git: 
+            On Unix/Linux/macOS: Git will use LF for line endings.
+            On Windows: Git will convert CRLF to LF when committing files, ensuring consistent LF line endings in your repository.
+
+
+
+
+
