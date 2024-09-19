@@ -38,11 +38,11 @@ Ensure the following software is installed on your machine:
 ## Steps to Set Up Locally
 1. Clone the repository:
 ```
-git clone https://github.com/MeenakshiMony/virtual-fashion-assistant.git
+git clone https://YOUR_PAT_TOKEN@github.com/MeenakshiMony/Fashion_Fusion.git       
 ```
 2. Navigate to the project directory:
 ```
-cd virtual-fashion-assistant
+cd Fashion_Fusion
 ```
 3. Install dependencies:
 ```
