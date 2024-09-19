@@ -1,11 +1,11 @@
 # Fashion Fusion
 Welcome to the Fashion Fusion, a React-based web application that leverages Machine Learning and Augmented Reality to deliver a tailored, immersive fashion experience. This application offers personalized fashion recommendations, a virtual try-on feature, and community engagement with influencers and other fashion enthusiasts.
 ## Table of Contents
-- Project Overview
-- Features
-- Technologies Used
-- Setup and Installation
-- Usage
+- [Project Overview](#project-overview)
+- [Features](#features)
+- [Technologies Used](#technologies-used)
+- [Setup and Installation](#setup-and-installation)
+- [Usage](#usage)
 
 ## Project Overview
 The Virtual Fashion Assistant is designed to enhance the fashion experience for users by providing personalized fashion recommendations, allowing users to try on clothes virtually, and offering a platform for community interaction. Using advanced technologies like Machine Learning for recommendations and Augmented Reality for virtual try-ons, the application redefines how users engage with fashion online.
@@ -31,9 +31,9 @@ The Virtual Fashion Assistant is designed to enhance the fashion experience for 
 ## Setup and Installation
 Prerequisites:
 Ensure the following software is installed on your machine:
-- Node.js
-- npm (Node Package Manager)
-- Git
+- [Download Node.js](https://nodejs.org/en/download/)
+- [Download npm](https://www.npmjs.com/get-npm)
+- [Download Git](https://git-scm.com/downloads)
   
 ## Steps to Set Up Locally
 1. Clone the repository:
