@@ -1,70 +1,61 @@
-# Getting Started with Create React App
+# Fashion Fusion
+Welcome to the Fashion Fusion, a React-based web application that leverages Machine Learning and Augmented Reality to deliver a tailored, immersive fashion experience. This application offers personalized fashion recommendations, a virtual try-on feature, and community engagement with influencers and other fashion enthusiasts.
+## Table of Contents
+- Project Overview
+- Features
+- Technologies Used
+- Setup and Installation
+- Usage
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Project Overview
+The Virtual Fashion Assistant is designed to enhance the fashion experience for users by providing personalized fashion recommendations, allowing users to try on clothes virtually, and offering a platform for community interaction. Using advanced technologies like Machine Learning for recommendations and Augmented Reality for virtual try-ons, the application redefines how users engage with fashion online.
 
-## Available Scripts
+## Features
+### 1. Personalized Fashion Recommendations:
+  Tailored fashion suggestions based on user preferences such as body type, culture, personal style, and trends.
 
-In the project directory, you can run:
+### 2. Virtual Try-On:
+  Users can visualize how selected garments look on their uploaded images, allowing them to experiment with different outfits without physically trying them on.
 
-### `npm start`
+### 3. Community Engagement:
+  A social platform where users can interact with fashion influencers and fellow fashion lovers. Users can share their outfits, ask for advice, and engage in discussions about style and trends.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Technologies Used
+- *React.js:* Frontend framework for building interactive UIs.
+- *Node.js + Express:* Backend development for handling API requests.
+- *MongoDB:* Database for user data and recommendations.
+- *TensorFlow:* Machine Learning algorithms for personalized recommendations.
+- *Three.js/AR.js:* Augmented Reality for virtual try-ons.
+- *OpenCV:* Image processing for virtual try-on accuracy.
+- *Git:* Version control.
+## Setup and Installation
+Prerequisites:
+Ensure the following software is installed on your machine:
+- Node.js
+- npm (Node Package Manager)
+- Git
+  
+## Steps to Set Up Locally
+1. Clone the repository:
+```
+git clone https://github.com/MeenakshiMony/virtual-fashion-assistant.git
+```
+2. Navigate to the project directory:
+```
+cd virtual-fashion-assistant
+```
+3. Install dependencies:
+```
+npm install
+```
+4. Run the development server:
+```
+npm start
+```
+The project should now be running at http://localhost:3000.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Usage
+1. Sign Up or Log In: Create an account to access personalized features.
+2. Receive Fashion Recommendations: Based on your preferences, you will get style suggestions tailored to your body type, culture, and tastes.
+3. Virtual Try-On: Upload your image and try on different garments using AR technology.
+4. Engage with the Community: Share your looks and receive feedback from influencers and other fashion enthusiasts.
