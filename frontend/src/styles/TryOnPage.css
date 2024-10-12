@@ -1,0 +1,100 @@
+/* styles/TryOnPage.css */
+
+.virtual-try-on {
+  font-family: Arial, sans-serif;
+  color: #333;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.avatar-camera {
+  width: 100%;
+  max-width: 800px;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.ar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.ar-viewer {
+  width: 100%;
+  height: 400px;
+  background: #eee;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.upload-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.upload-button {
+  margin-top: 10px;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.upload-button:hover {
+  background-color: #0056b3;
+}
+
+.outfit-selection {
+  width: 100%;
+  max-width: 800px;
+  text-align: center;
+}
+
+.outfit-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+.outfit-card {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  width: 300px;
+  text-align: center;
+}
+
+.outfit-card img {
+  width: 100%;
+  height: auto;
+}
+
+.outfit-card button {
+  padding: 10px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 0 0 8px 8px;
+  cursor: pointer;
+}
+
+.outfit-card button:hover {
+  background-color: #218838;
+}
