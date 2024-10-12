@@ -1,0 +1,85 @@
+/* CommunityPage.css */
+
+.community {
+  padding: 20px;
+  background-color: #f8f9fa;
+  color: #333;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.social-feed {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.post-card {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  overflow: hidden;
+  transition: transform 0.2s ease-in-out;
+}
+
+.post-card:hover {
+  transform: scale(1.02);
+}
+
+.post-header {
+  padding: 10px;
+  background: #007bff;
+  color: #fff;
+  font-weight: bold;
+}
+
+.post-image {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.post-content {
+  padding: 15px;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.post-interactions {
+  padding: 10px 15px;
+  font-size: 14px;
+  color: #6c757d;
+}
+
+.comment-section {
+  padding: 15px;
+  display: flex;
+  align-items: center;
+}
+
+.comment-input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-right: 10px;
+}
+
+.comment-button {
+  padding: 8px 15px; /* Reduced padding to make the button smaller */
+  border: none;
+  border-radius: 4px;
+  background: #007bff;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  font-size: 14px; /* Optionally reduce font size for a smaller button */
+  width: auto; /* Ensures button doesn’t take too much space */
+}
+
+.comment-button:hover {
+  background: #0056b3;
+}
