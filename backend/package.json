@@ -3,9 +3,11 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon ./index.js --exec babel-node -e js"
+    "start": "nodemon --inspect ./index.js --exec babel-node",
+    "SeedData": "nodemon --inspect ./scripts/SeedData.js --exec babel-node"
   },
   "author": "",
+  "private": true,
   "license": "ISC",
   "description": "",
   "devDependencies": {
@@ -15,9 +17,13 @@
     "@babel/preset-env": "^7.25.7"
   },
   "dependencies": {
+    "axios": "^1.7.7",
+    "bcrypt": "^5.0.1",
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",
     "express": "^4.21.0",
+    "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.9.0",
     "mongoose": "^8.7.0",
     "nodemon": "^3.1.7"

@@ -1,28 +1,21 @@
 <!doctype html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React</title>
-  </head>
-  <body>
+    <!-- Primary Meta Tags -->
+    <title>Fashion Fusion - Virtual Fashion Try-On and Community</title>
+    <meta name="title" content="Fashion Fusion - Virtual Fashion Try-On and Community" />
+    <meta name="description" content="Fashion Fusion is a virtual fashion assistant that allows you to try on outfits in augmented reality, get recommendations, and engage with a fashion-forward community." />
+
+    <!-- Additional Meta Tags -->
+    <meta name="keywords" content="Fashion Fusion, virtual try-on, augmented reality fashion, outfit recommendations, fashion community" />
+    <meta name="author" content="Fashion Fusion Team" />
+
+</head>
+<body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
-    <script>
-      const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-          if (mutation.type === 'attributes' && mutation.attributeName === 'textprediction') {
-            document.body.removeAttribute('textprediction');
-            document.body.setAttribute('writingsuggestions', 'true');
-          }
-        });
-      });
-      
-      observer.observe(document.body, {
-        attributes: true,
-      });
-    </script>
-    
-  </body>
+</body>
 </html>

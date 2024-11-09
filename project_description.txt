@@ -107,4 +107,7 @@ Major Steps Included:
 
 
 
+PACKAGES:
+----------
 
+axios - to send requests to the Express backend, facilitating communication between frontend and backend.
