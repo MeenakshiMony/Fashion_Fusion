@@ -1,28 +1,22 @@
-/* styles/SignupPage.css */
+/* styles/LoginPage.css */
 
 .signup-page {
   font-family: Arial, sans-serif;
-  color: #333;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
+  max-width: 400px;
+  margin: 50px auto;
   padding: 20px;
-  background-color: #f5f5f5;
+  background: #fff;
+  justify-content: center;
+  
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .signup-page h1 {
   text-align: center;
   margin-bottom: 20px;
-}
-
-.signup-form {
-  max-width: 400px;
-  width: 100%;
-  background: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-size: 24px;
+  color: #333;
 }
 
 .form-group {
@@ -31,16 +25,23 @@
 
 .form-group label {
   display: block;
-  font-weight: bold;
   margin-bottom: 5px;
+  font-weight: bold;
+  color: #333;
 }
 
 .form-group input {
   width: 100%;
   padding: 10px;
-  border-radius: 5px;
   border: 1px solid #ccc;
+  border-radius: 5px;
   box-sizing: border-box;
+  background-color: #ffffff;
+  color: #333;
+}
+
+.error {
+  border-color: #ff0000;
 }
 
 .error-message {
@@ -49,8 +50,7 @@
   margin-top: 5px;
 }
 
-button {
-  display: block;
+button[type="submit"] {
   width: 100%;
   padding: 10px;
   background-color: #007bff;
@@ -61,6 +61,20 @@ button {
   font-size: 16px;
 }
 
-button:hover {
+button[type="submit"]:hover {
   background-color: #0056b3;
+}
+
+.toggle-btn {
+  margin-top: 10px;
+  background-color: transparent;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: underline;
+}
+
+.toggle-btn:hover {
+  color: #007bff; 
 }

@@ -27,6 +27,7 @@ textarea {
   border-radius: 8px;
   border: 1px solid #ccc;
   font-size: 16px;
+  color: #333;
   margin-bottom: 20px;
   box-sizing: border-box;
   background-color: #f9f9f9;
@@ -40,10 +41,19 @@ button {
   border-radius: 5px;
   cursor: pointer;
   font-size: 16px;
+  outline: none;  /* Remove default outline */
+  appearance: none; /* Removes default styles in some browsers */
+  box-shadow: none; /* Ensures no shadow */
+  text-align: center;
 }
 
 button:hover {
   background-color: #0056b3;
+}
+
+button:focus, button:active {
+  background-color: #0056b3;  /* make sure it's consistent when clicked/focused */
+  outline: none;  /* Remove default focus outline */
 }
 
 .recommendations {

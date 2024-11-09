@@ -1,100 +1,105 @@
-/* styles/TryOnPage.css */
-
 .virtual-try-on {
-  font-family: Arial, sans-serif;
+  text-align: center;
   color: #333;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
 .page-header {
-  text-align: center;
   margin-bottom: 20px;
+}
+
+.page-header h1 {
+  font-size: 2.5rem;
+  color: #333;
+}
+
+.page-header p {
+  font-size: 1.2rem;
+  color: #666;
 }
 
 .avatar-camera {
-  width: 100%;
-  max-width: 800px;
-  margin-bottom: 40px;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 30px;
 }
 
 .ar-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.ar-viewer {
+  position: relative;
   width: 100%;
+  max-width: 600px;
   height: 400px;
   background: #eee;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.ar-container a-scene {
+  width: 100%;
+  height: 100%;
+}
+
+.webcam-feed {
+  display: none; /* Hidden since we are using the AR.js scene for camera */
 }
 
 .upload-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  margin-top: 10px;
 }
 
 .upload-button {
-  margin-top: 10px;
+  background-color: #4CAF50;
+  color: white;
   padding: 10px 20px;
-  background-color: #007bff;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+}
+
+.upload-button:hover {
+  background-color: #45a049;
+}
+
+.outfit-selection {
+  margin-top: 30px;
+}
+
+.outfit-selection h2 {
+  font-size: 1.8rem;
+  color: #333;
+}
+
+.outfit-grid {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.outfit-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 150px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+}
+
+.outfit-card img {
+  width: 100%;
+  height: auto;
+  margin-bottom: 10px;
+}
+
+.outfit-card button {
+  padding: 8px 15px;
+  background-color: #008CBA;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
 }
 
-.upload-button:hover {
-  background-color: #0056b3;
-}
-
-.outfit-selection {
-  width: 100%;
-  max-width: 800px;
-  text-align: center;
-}
-
-.outfit-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  justify-content: center;
-}
-
-.outfit-card {
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  width: 300px;
-  text-align: center;
-}
-
-.outfit-card img {
-  width: 100%;
-  height: auto;
-}
-
-.outfit-card button {
-  padding: 10px;
-  background-color: #28a745;
-  color: white;
-  border: none;
-  border-radius: 0 0 8px 8px;
-  cursor: pointer;
-}
-
 .outfit-card button:hover {
-  background-color: #218838;
+  background-color: #007bb5;
 }

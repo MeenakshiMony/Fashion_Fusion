@@ -1,101 +1,90 @@
 import React, { useState } from 'react';
 import '../styles/SignupPage.css';
+import axios from "../utils/axios";
 
 const SignupPage = () => {
-  const [userInfo, setUserInfo] = useState({
-    name: '',
-    email: '',
-    password: '',
-  });
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-  const [errors, setErrors] = useState({
-    name: '',
-    email: '',
-    password: '',
-  });
+  const handleSignup = async (e) => {
+    e.preventDefault();
 
-  const handleInputChange = (event) => {
-    const { name, value } = event.target;
-    setUserInfo({ ...userInfo, [name]: value });
-  };
-
-  const validateForm = () => {
-    let isValid = true;
-    const newErrors = { name: '', email: '', password: '' };
-
-    if (!userInfo.name) {
-      newErrors.name = 'Name is required.';
-      isValid = false;
-    }
-    if (!userInfo.email) {
-      newErrors.email = 'Email is required.';
-      isValid = false;
-    } else if (!/\S+@\S+\.\S+/.test(userInfo.email)) {
-      newErrors.email = 'Email address is invalid.';
-      isValid = false;
-    }
-    if (!userInfo.password) {
-      newErrors.password = 'Password is required.';
-      isValid = false;
-    } else if (userInfo.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters.';
-      isValid = false;
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
     }
 
-    setErrors(newErrors);
-    return isValid;
-  };
+    try {
+      const response = await axios.post("/auth/register", {
+        username,
+        email,
+        password,
+      });
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    if (validateForm()) {
-      // Handle successful signup (e.g., call an API)
-      console.log('Form submitted:', userInfo);
+      console.log(response.data); //can be deleted later if not needed
+
+      setSuccess("Registration successful! Please login.");
+      setError(""); // Clear any previous error
+    } catch (err) {
+      setError(err.response?.data?.message || "Registration failed");
+      setSuccess(""); // Clear any previous success message
     }
   };
 
   return (
     <div className="signup-page">
-      <h1>Sign Up</h1>
-      <form onSubmit={handleSubmit} className="signup-form">
+    <h1>Sign Up</h1> 
+      <form onSubmit={handleSignup} className="signup-form">
         <div className="form-group">
-          <label htmlFor="name">Name:</label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            value={userInfo.name}
-            onChange={handleInputChange}
-            placeholder="Enter your name"
-          />
-          {errors.name && <p className="error-message">{errors.name}</p>}
-        </div>
+            <label htmlFor="name">Name:</label>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Enter username"
+              required
+            />
+        </div> 
+        
         <div className="form-group">
           <label htmlFor="email">Email:</label>
           <input
             type="email"
-            id="email"
-            name="email"
-            value={userInfo.email}
-            onChange={handleInputChange}
-            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Enter email"
+            required
           />
-          {errors.email && <p className="error-message">{errors.email}</p>}
         </div>
         <div className="form-group">
           <label htmlFor="password">Password:</label>
           <input
             type="password"
-            id="password"
-            name="password"
-            value={userInfo.password}
-            onChange={handleInputChange}
-            placeholder="Enter your password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Enter the password"
+            required
           />
-          {errors.password && <p className="error-message">{errors.password}</p>}
+        </div>
+        <div className="form-group">
+          <label htmlFor="confirmPassword">Confirm Password:</label>
+          <input
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="Enter the password again"
+            required
+          />
         </div>
         <button type="submit">Sign Up</button>
       </form>
+
+      {error && <div style={{ color: "red" }}>{error}</div>}
+      {success && <div style={{ color: "green" }}>{success}</div>}
     </div>
   );
 };
