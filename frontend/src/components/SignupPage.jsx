@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import '../styles/SignupPage.css';
 import axios from "../utils/axios";
 
+
 const SignupPage = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -12,20 +13,26 @@ const SignupPage = () => {
 
   const handleSignup = async (e) => {
     e.preventDefault();
-
+    
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      setError("Passwords do not match!");
+      setSuccess(""); // Clear any previous success message
       return;
     }
 
     try {
-      const response = await axios.post("/auth/register", {
+      const response = await axios.post("http://localhost:8080/users", {
         username,
         email,
         password,
       });
 
       console.log(response.data); //can be deleted later if not needed
+
+      // On successful signup, set the JWT token in localStorage
+      if (response.data.token) {
+        localStorage.setItem("authToken", response.data.token);
+      }
 
       setSuccess("Registration successful! Please login.");
       setError(""); // Clear any previous error
