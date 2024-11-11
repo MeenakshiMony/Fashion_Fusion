@@ -1,48 +1,47 @@
 import mongoose from 'mongoose';
 import express from 'express';
+import bodyParser from 'body-parser';
+require('dotenv').config();
 import cors from 'cors';
 import db from './db/db';  // MongoDB connection from db.js
-import { populateDatabase } from './scripts/SeedData';  // Import populateDatabase function
-import CommentRoutes from './communityEngagement/routes/CommentRoutes';
-import PostRoutes from './communityEngagement/routes/PostRoutes';
+
+import { populateDatabase } from './scripts/dbinit';  // Import populateDatabase function
+import commentRoutes from './routes/CommentRoutes';
+import postRoutes from './routes/PostRoutes';
+import userRoutes from './middleware/auth';
+import authr from './routes/auth';
 
 const app = express();
-const port = 8080;
+const PORT = 8080;
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-// Middlewares
-app.use(cors('http://localhost:5173')); //frontend url to make connection with frontend
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+//Use CORS middleware for all routes
+app.use(cors({
+  origin: 'http://localhost:5173', // Allow requests only from this frontend URL
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Specify allowed methods (optional)
+  credentials: true,  // If your frontend uses cookies or authentication tokens
+}));
 
-// MongoDB connection
-mongoose.connect('mongodb://localhost:27017/Fashion_Fusion')
-  .then(() => {
-    console.log('Database connected');
-    
-    // Call the function to seed data after DB connection
-    populateDatabase();
-  })
-  .catch((err) => {
-    console.error('Database connection error:', err);
-  });
 
-// Routes
-app.use('/comments', CommentRoutes);
-app.use('/posts', PostRoutes);
+app.use('/uploads', express.static('uploads'));
 
-// Seed route to trigger manual seeding
-app.get('/api/seed', async (req, res) => {
-  try {
-    await populateDatabase();  // Populate database via API call
-    res.status(200).send('Mock data seeded successfully!');
-  } catch (error) {
-    console.error('Error seeding data:', error);
-    res.status(500).send('Error seeding data');
-  }
+// Use the routes
+app.use('/api/users', userRoutes);
+app.use('/api/posts', postRoutes);
+app.use('/api/comments', commentRoutes);
+
+app.listen(PORT , () => {
+  console.log(`Server running on port ${PORT}`);
 });
 
-// Start the server
-app.listen(port, () => {
-  console.log(`Server is running on port: ${port}`);
-});
+app.get('/', (req, res) =>
+  res.send(`Fashion Fusion Backend is running!`)
+)
+
+
+
+
+
+ 

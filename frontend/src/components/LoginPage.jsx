@@ -10,17 +10,28 @@ const LoginSignupPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState(""); // For handling success messages
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
+      // Make the login request to the backend
       const response = await axios.post("/auth/login", { email, password });
-      // Store the JWT token in localStorage or sessionStorage
-      localStorage.setItem("token", response.data.token);
-      // Redirect user to their profile or home page
-      navigate('/home'); // or any route
+
+      // Check if the response contains the token
+      if (response.data.token) {
+        // Store the JWT token in localStorage
+        localStorage.setItem("token", response.data.token);
+
+        // Redirect user to the home page or another page
+        navigate('/home');
+        setSuccess("Login successful!"); // Show success message
+        setError(""); // Clear any previous error messages
+      }
     } catch (err) {
+      // Handle error
       setError(err.response?.data?.message || "Login failed");
+      setSuccess(""); // Clear any previous success messages
     }
   };
 
@@ -37,6 +48,7 @@ const LoginSignupPage = () => {
               value={email}
               onChange={ (e) => setEmail(e.target.value)}
               placeholder="Enter your email"
+              required
             />
         </div>
         <div className="form-group">
@@ -45,8 +57,8 @@ const LoginSignupPage = () => {
             type="password"
             value={password}
             onChange={ (e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
-              
+            placeholder="Enter your password"
+            required
           /> 
         </div>    
         <button type="submit">Login</button>

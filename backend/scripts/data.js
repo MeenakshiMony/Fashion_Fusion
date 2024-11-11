@@ -9,14 +9,14 @@ const hashPassword = async (plainPassword) => {
 // Function to create users with hashed passwords
 const createUsers = async () => {
   return [
-    { username: 'Joe', email: 'joe@example.com', password: await hashPassword('password1') },
-    { username: 'Charlie', email: 'charlie@example.com', password: await hashPassword('password2') },
-    { username: 'Simon', email: 'simon@example.com', password: await hashPassword('password3') },
-    { username: 'Teresa', email: 'teresa@example.com', password: await hashPassword('password4') },
-    { username: 'Sara', email: 'sara@example.com', password: await hashPassword('password5') },
-    { username: 'Dalton', email: 'dalton@example.com', password: await hashPassword('password6') },
-    { username: 'Sandy', email: 'sandy@example.com', password: await hashPassword('password7') },
-    { username: 'Ambreen', email: 'ambreen@example.com', password: await hashPassword('password8') }
+    { username: 'Joe', email: 'joe@example.com', password: await hashPassword('joe@example.com') },
+    { username: 'Charlie', email: 'charlie@example.com', password: await hashPassword('charlie@example.com') },
+    { username: 'Simon', email: 'simon@example.com', password: await hashPassword('simon@example.com') },
+    { username: 'Teresa', email: 'teresa@example.com', password: await hashPassword('teresa@example.com') },
+    { username: 'Sara', email: 'sara@example.com', password: await hashPassword('sara@example.com') },
+    { username: 'Dalton', email: 'dalton@example.com', password: await hashPassword('dalton@example.com') },
+    { username: 'Sandy', email: 'sandy@example.com', password: await hashPassword('sandy@example.com') },
+    { username: 'Ambreen', email: 'ambreen@example.com', password: await hashPassword('ambreen@example.com') }
   ];
 };
 
@@ -46,11 +46,13 @@ const initializeData = async () => {
   ];
   
 
-  const comments = [
-    { user: "Joe", content: "This is amazing!" },
-    { user: "Charlie", content: "So cool!" },
-    { user: "Sara", content: "I want to try this!" }
-  ];
+  // data.js (modifying comments array)
+const comments = [
+  { postId: '67309e1a409eeba9e9bcd7b4', user: "Joe", content: "This is amazing!" },
+  { postId: '67309e1a409eeba9e9bcd7b5', user: "Charlie", content: "So cool!" },
+  { postId: '67309e1a409eeba9e9bcd7b6', user: "Sara", content: "I want to try this!" }
+];
+
 
   return { users, posts, comments };
 };
