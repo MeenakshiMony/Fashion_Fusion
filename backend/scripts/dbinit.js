@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
-import { CommentModel } from "../model/Comment.js";
-import { UserModel } from "../model/User.js";
-import { PostModel } from "../model/Post.js";
+const CommentModel = require('../model/Comment');
+const UserModel = require('../model/User.js');
+const PostModel = require('../model/Post.js');
 import initializeData from './data.js';
 
 export const populateDatabase = async () => {
