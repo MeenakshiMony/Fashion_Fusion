@@ -25,8 +25,8 @@ app.use(cors({
 }));
 
 // Use the routes
-app.use('/api/users', userRoutes);
-app.use('/api/posts', postRoutes);
+app.use('/api', userRoutes);
+app.use('/api', postRoutes);
 app.use('/api/comments', commentRoutes);
 
 app.listen(PORT , () => {

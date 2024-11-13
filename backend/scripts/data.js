@@ -9,14 +9,14 @@ const hashPassword = async (plainPassword) => {
 // Function to create users with hashed passwords
 const createUsers = async () => {
   return [
-    { username: 'Joe', email: 'joe@example.com', password: await hashPassword('joe@example.com') },
-    { username: 'Charlie', email: 'charlie@example.com', password: await hashPassword('charlie@example.com') },
-    { username: 'Simon', email: 'simon@example.com', password: await hashPassword('simon@example.com') },
-    { username: 'Teresa', email: 'teresa@example.com', password: await hashPassword('teresa@example.com') },
-    { username: 'Sara', email: 'sara@example.com', password: await hashPassword('sara@example.com') },
-    { username: 'Dalton', email: 'dalton@example.com', password: await hashPassword('dalton@example.com') },
-    { username: 'Sandy', email: 'sandy@example.com', password: await hashPassword('sandy@example.com') },
-    { username: 'Ambreen', email: 'ambreen@example.com', password: await hashPassword('ambreen@example.com') }
+    { username: 'Anna', email: 'anna@example.com', password: await hashPassword('anna@example.com') },
+    { username: 'James', email: 'james@example.com', password: await hashPassword('james@example.com') },
+    { username: 'Sophia', email: 'sophia@example.com', password: await hashPassword('sophia@example.com') },
+    { username: 'Lucas', email: 'lucas@example.com', password: await hashPassword('lucas@example.com') },
+    { username: 'Olivia', email: 'olivia@example.com', password: await hashPassword('olivia@example.com') },
+    { username: 'Ethan', email: 'ethan@example.com', password: await hashPassword('ethan@example.com') },
+    { username: 'Lily', email: 'lily@example.com', password: await hashPassword('lily@example.com') },
+    { username: 'Mason', email: 'mason@example.com', password: await hashPassword('mason@example.com') }
   ];
 };
 
@@ -26,32 +26,53 @@ const initializeData = async () => {
 
   const posts = [
     {
-      user: 'Joe',
-      content: 'This is a post about my trip to Vancouver!',
-      imageUrl: 'https://www.tripsavvy.com/thmb/ArdxvzH0AQAkmDKpRHraiu1buj4=/960x0/filters:no_upscale():max_bytes(150000):strip_icc()/GettyImages-534612574-5b11609743a10300368c9314.jpg',
-      likes: 5,
+      user: 'Anna',
+      content: 'Loving my new spring collection! Floral dresses are perfect for sunny days 🌸',
+      imageUrl: 'https://www.anunblurredlady.com/wp-content/uploads/2019/02/IMG_9060.jpg',
+      likes: 12,
     },
     {
-      user: 'Sara',
-      content: 'Had a great time in NYC!',
-      imageUrl: 'https://example.com/images/nyc.jpg',
-      likes: 3,
+      user: 'James',
+      content: 'Finally upgraded my wardrobe with a sleek leather jacket. Timeless style for every season 🖤',
+      imageUrl: 'https://cdn.shopify.com/s/files/1/0162/2116/files/Leather_jacket_outfits_for_men.jpg?v=1541497705',
+      likes: 15,
     },
     {
-      user: 'Simon',
-      content: 'Had an amazing day in Boston.',
-      imageUrl: 'https://tempusfugitlaw.com/wp-content/uploads/2021/02/Tempus_Law_Home-e1616513096985.jpg',
-      likes: 2,
-    }
+      user: 'Lucas',
+      content: 'Statement boots for the win! These are the perfect way to add edge to any outfit 👢🔥',
+      imageUrl: 'https://2.bp.blogspot.com/-7JWRGLCMYuc/VzIIV1pDTII/AAAAAAAAL6k/4n6zLJcvjHod_8Gm4jtoZJ65ItT26ibzgCLcB/s1600/P5100694.JPG',
+      likes: 18,
+    },
+    {
+      user: 'Olivia',
+      content: 'Sustainable fashion is the future 🌱 Loving my eco-friendly outfit made from recycled materials!',
+      imageUrl: 'https://assets.vogue.in/photos/60741d6f0557c4755734dba0/master/w_1600%2Cc_limit/Vogue-Sustainability-Guide-credit-Justin-Polkey-2.jpg',
+      likes: 25,
+    },
+    {
+      user: 'Ethan',
+      content: 'My go-to fall outfit: oversized sweater and comfy boots. Perfect for crisp autumn days 🍂',
+      imageUrl: 'https://www.wishesandreality.com/wp-content/uploads/2016/10/fall-in-chicago-hm-cable-oversized-turtleneck-sweater-girlfriend-jeans-snakeskin-boots-how-to-wear-over-the-ankle-boots-cozy-fall-style-15.jpg',
+      likes: 10,
+    },
+    {
+      user: 'Sophia',
+      content: 'Nothing beats a classic pair of high-waisted jeans. Effortless chic look every time 👖✨',
+      imageUrl: 'https://i.pinimg.com/736x/3f/d4/1d/3fd41d4d95b7f54cc030eba61b195937.jpg',
+      likes: 15,
+    },
+
+  ];
+
+  const comments = [
+    { postId: '67309e1a409eeba9e9bcd7b4', user: "Anna", content: "This look is absolutely stunning! 🌟 I love how you styled the floral dress!" },
+    { postId: '67309e1a409eeba9e9bcd7b5', user: "James", content: "That leather jacket is such a bold choice! Really elevates the whole outfit 🖤" },
+    { postId: '67309e1a409eeba9e9bcd7b7', user: "Lucas", content: "Those boots are fire! 🔥 They really complete the edgy vibe of your outfit 👢" },
+    { postId: '67309e1a409eeba9e9bcd7b8', user: "Olivia", content: "Eco-friendly fashion is the way to go! Love how stylish and sustainable your outfit looks 🌱" },
+    { postId: '67309e1a409eeba9e9bcd7b9', user: "Ethan", content: "Obsessed with the oversized sweater and boots combo! Perfect for chilly autumn days 🍂" },
+    { postId: '67309e1a409eeba9e9bcd7b6', user: "Sophia", content: "High-waisted jeans are such a staple! Definitely need a pair like this in my wardrobe 😍" },
   ];
   
-
-  // data.js (modifying comments array)
-const comments = [
-  { postId: '67309e1a409eeba9e9bcd7b4', user: "Joe", content: "This is amazing!" },
-  { postId: '67309e1a409eeba9e9bcd7b5', user: "Charlie", content: "So cool!" },
-  { postId: '67309e1a409eeba9e9bcd7b6', user: "Sara", content: "I want to try this!" }
-];
 
 
   return { users, posts, comments };
