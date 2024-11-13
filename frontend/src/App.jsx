@@ -1,38 +1,4 @@
-
-import React, { useEffect, useState } from "react";
-import { fetchPosts, createPost } from "./api";
-import Auth from "./components/Auth";
-import Post from "./components/Post";
-
-const App = () => {
-  const [posts, setPosts] = useState([]);
-
-  useEffect(() => {
-    const getPosts = async () => {
-      const response = await fetchPosts();
-      setPosts(response.data);
-    };
-    getPosts();
-  }, []);
-
-  const handleCreatePost = async (postData) => {
-    await createPost(postData);
-    const response = await fetchPosts();
-    setPosts(response.data);
-  };
-
-  return (
-    <div>
-      <Auth onCreatePost={handleCreatePost} />
-      {posts.map(post => <Post key={post._id} post={post} />)}
-    </div>
-  );
-};
-
-export default App;
-
-
-/* import React from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 import Navbar from './components/Navbar';
@@ -59,8 +25,8 @@ function App() {
           <Route path="/tryon" element={<TryOnPage />} />
           <Route path="/community" element={<CommunityPage />} />
           
-          {/* Protected Profile Route */
-         /*  <Route
+          {/* Protected Profile Route */}
+          <Route
             path="/profile"
             element={isAuthenticated ? <ProfilePage /> : <Navigate to="/login" />}
           />
@@ -68,8 +34,8 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
 
-          {/* Redirect to Home if route not found */
-         /*  <Route path="*" element={<Navigate to="/" />} />
+          {/* Redirect to Home if route not found */}
+          <Route path="*" element={<Navigate to="/" />} />
         </Routes>
         <Footer />
       </div>
@@ -78,4 +44,3 @@ function App() {
 }
 
 export default App;
- */ 

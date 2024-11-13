@@ -1,43 +1,22 @@
-const router = require("express").Router();
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const User = require("../model/User");
-
-const generateAccessToken = (id, username) => {
-  return jwt.sign({ id, username }, process.env.TOKEN_SECRET, { expiresIn: "3600s" });
-};
-
-router.post("/register", async (req, res) => {
-  const { username, password } = req.body;
-  const hashedPassword = await bcrypt.hash(password, 10);
-  const newUser  = new User({ username, password: hashedPassword });
-  await newUser .save .then(user => res.status(201).json({ message: "User  registered successfully", user }))
-  .catch(err => res.status(400).json({ error: err.message }));
-});
-
-router.post("/login", async (req, res) => {
-  const { username, password } = req.body;
-  const user = await User.findOne({ username });
-  if (!user) return res.status(400).json({ error: "User  not found" });
-
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) return res.status(400).json({ error: "Invalid credentials" });
-
-  const token = generateAccessToken(user._id, user.username);
-  res.json({ token });
-});
-
-module.exports = router;
 
 
-
-/* const express =require('express');
+const express =require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../model/User'); // Assuming you have a User model
 const router = express.Router();
 
-router.post('/users', async (req, res) => {
+// GET route to fetch all users
+router.get('/users', async (req, res) => {
+  try {
+    const users = await User.find(); // Fetch all users
+    res.status(200).json(users); // Return the data as a response
+  } catch (err) {
+    res.status(500).json({ message: 'Error retrieving users', error: err.message });
+  }
+});
+
+router.post('/', async (req, res) => {
   const { username, email, password } = req.body;
 
   try {
@@ -100,4 +79,6 @@ router.post('/auth/login', async (req, res) => {
     console.error(err);
     res.status(500).json({ message: "Server error" });
   }
-}); */
+}); 
+
+export default router;
