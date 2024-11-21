@@ -19,7 +19,7 @@
     "got": "^14.4.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.26.0",
+    "react-router-dom": "^6.28.0",
     "rimraf": "^6.0.1",
     "three": "^0.168.0",
     "vitest": "^2.1.2",

@@ -1,7 +1,7 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const PostModel = require('../model/Post'); // Import the Post model
-const Comment = require('../model/Comment'); // Import the Comment model (make sure it's defined)
+import PostModel from '../model/Post'; // Import the Post model
+import Comment from '../model/Comment'; // Import the Comment model (make sure it's defined)
 
 
 // GET route to fetch all posts along with populated comments
@@ -47,4 +47,4 @@ router.post('/posts/:id/comments', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

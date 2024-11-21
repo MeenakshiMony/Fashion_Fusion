@@ -19,7 +19,7 @@ function App() {
     <Router>
       <div className="App">
         <Navbar />
-        <Routes>
+        <Routes future={{ v7_relativeSplatPath: true }}>
           <Route path="/" element={<HomePage />} />
           <Route path="/stylist" element={<StylistPage />} />
           <Route path="/tryon" element={<TryOnPage />} />
