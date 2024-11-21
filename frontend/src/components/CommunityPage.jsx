@@ -37,7 +37,7 @@ const CommunityPage = () => {
     const fetchPosts = async () => {
       setLoading(true);
       try {
-        const response = await fetch('http://localhost:8080/api/posts');  // Corrected API endpoint
+        const response = await fetch('http://localhost:8080/posts');  // Corrected API endpoint
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
@@ -61,7 +61,7 @@ const CommunityPage = () => {
   const handleAddComment = async (postId) => {
     if (newComments[postId]?.trim()) {
       try {
-        const response = await fetch(`http://localhost:8080/api/community/posts/${postId}/comments`, {
+        const response = await fetch(`http://localhost:8080/posts/${postId}/comments`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -102,10 +102,10 @@ const CommunityPage = () => {
               <img src={post.imageUrl} alt="Post" className="post-image" />
               <p className="post-content">{post.content}</p>
               <div className="post-interactions">
-                <span className="likes">{post.likes} Likes</span>
+                <span className="likes">{post.likes} Likes </span>
                 <span className="comments">{post.comments.length} Comments</span>
               </div>
-              <div className="comment-section">
+              <div key={post.id} className="comment-section">
                 <input
                   type="text"
                   value={newComments[post.id] || ''}
@@ -118,7 +118,7 @@ const CommunityPage = () => {
                 </button>
                 <div className="comments-list">
                   {post.comments.map((comment) => (
-                    <div key={comment.id} className="comment">
+                    <div key={`${post.id}-${comment.id}`} className="comment">   {/* Combine post.id and comment.id */}
                       <p>{comment.text}</p>
                     </div>
                   ))}

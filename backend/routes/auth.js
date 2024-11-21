@@ -1,9 +1,9 @@
 
 
-const express =require('express');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
-const User = require('../model/User'); // Assuming you have a User model
+import express from 'express';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+import User from '../model/User'; // Assuming you have a User model
 const router = express.Router();
 
 // GET route to fetch all users
@@ -16,7 +16,7 @@ router.get('/users', async (req, res) => {
   }
 });
 
-router.post('/', async (req, res) => {
+router.post('/register', async (req, res) => {
   const { username, email, password } = req.body;
 
   try {

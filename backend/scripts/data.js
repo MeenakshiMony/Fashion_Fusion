@@ -64,18 +64,18 @@ const initializeData = async () => {
 
   ];
 
-  const comments = [
-    { postId: '67309e1a409eeba9e9bcd7b4', user: "Anna", content: "This look is absolutely stunning! 🌟 I love how you styled the floral dress!" },
-    { postId: '67309e1a409eeba9e9bcd7b5', user: "James", content: "That leather jacket is such a bold choice! Really elevates the whole outfit 🖤" },
-    { postId: '67309e1a409eeba9e9bcd7b7', user: "Lucas", content: "Those boots are fire! 🔥 They really complete the edgy vibe of your outfit 👢" },
-    { postId: '67309e1a409eeba9e9bcd7b8', user: "Olivia", content: "Eco-friendly fashion is the way to go! Love how stylish and sustainable your outfit looks 🌱" },
-    { postId: '67309e1a409eeba9e9bcd7b9', user: "Ethan", content: "Obsessed with the oversized sweater and boots combo! Perfect for chilly autumn days 🍂" },
-    { postId: '67309e1a409eeba9e9bcd7b6', user: "Sophia", content: "High-waisted jeans are such a staple! Definitely need a pair like this in my wardrobe 😍" },
+  const commentsData = [
+    {  user: "Anna", content: "This look is absolutely stunning! 🌟 I love how you styled the floral dress!" },
+    {  user: "James", content: "That leather jacket is such a bold choice! Really elevates the whole outfit 🖤" },
+    {  user: "Lucas", content: "Those boots are fire! 🔥 They really complete the edgy vibe of your outfit 👢" },
+    {  user: "Olivia", content: "Eco-friendly fashion is the way to go! Love how stylish and sustainable your outfit looks 🌱" },
+    {  user: "Ethan", content: "Obsessed with the oversized sweater and boots combo! Perfect for chilly autumn days 🍂" },
+    {  user: "Sophia", content: "High-waisted jeans are such a staple! Definitely need a pair like this in my wardrobe 😍" },
   ];
   
 
 
-  return { users, posts, comments };
+  return { users, posts, commentsData };
 };
 
 module.exports = initializeData;

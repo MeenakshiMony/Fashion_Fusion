@@ -1,48 +1,73 @@
 import mongoose from 'mongoose';
-const CommentModel = require('../model/Comment');
-const UserModel = require('../model/User.js');
-const PostModel = require('../model/Post.js');
+import CommentModel from '../model/Comment.js';
+import UserModel from '../model/User.js';
+import PostModel from '../model/Post.js';
 import initializeData from './data.js';
+import dotenv from 'dotenv';
 
-export const populateDatabase = async () => {
-    const db = mongoose.connection;
+dotenv.config(); // Load environment variables
 
-    db.on('error', (error) => {
-        console.error(error);
-    });
+const populateDatabase = async () => {
+    try {
+        // Clear previous data
+        await UserModel.deleteMany({});
+        await PostModel.deleteMany({});
+        await CommentModel.deleteMany({});
+        console.log('Previous data cleared successfully');
 
-    db.once('open', async () => {
-        console.log('Database connection open');
+        // Initialize data
+        const { users, posts, commentsData } = await initializeData();
 
-        try {
-            // Clear previous data
-            await UserModel.deleteMany({});
-            await PostModel.deleteMany({});
-            await CommentModel.deleteMany({});
-            console.log('Previous data cleared successfully');
+        // Insert Users
+        await UserModel.insertMany(users);
+        console.log('Users inserted successfully');
 
-            // Initialize data
-            const { users, posts, comments } = await initializeData();
+        /* // Insert Posts
+        await PostModel.insertMany(posts);
+        console.log('Posts inserted successfully');
 
-            // Insert Users
-            const savedUsers = await UserModel.insertMany(users);
-            console.log('Users inserted successfully');
+        // Insert Comments
+        await CommentModel.insertMany(comments);
+        console.log('Comments inserted successfully'); */
 
-            try {
-                // Insert Posts
-                const savedPosts = await PostModel.insertMany(posts);
-                console.log('Posts inserted successfully');
+        const savedPosts = await PostModel.insertMany(posts);
 
-                // Insert Comments
-                const savedComments = await CommentModel.insertMany(comments);
-                console.log('Comments inserted successfully');
+        const comments = commentsData.map((comment, index) => {
+            const postIndex = index % savedPosts.length;
+            return {
+                ...comment,
+                postId:savedPosts[postIndex]._id,
+            };
+        });
 
-            } catch (error) {
-                console.error('Error inserting posts or comments', error);
-            }
+        const savedComments = await CommentModel.insertMany(comments);
 
-        } catch (error) {
-            console.error('Error during database population:', error);
+        for(const comment of savedComments) {
+            await PostModel.findByIdAndUpdate(comment.postId, {
+                $push: { comments: comment._id },
+            });
         }
-    });
+
+        console.log('Posts and comments initialized successfully');
+    } catch (error) {
+        console.error('Error during database population:', error);
+    }
 };
+
+const connectAndPopulateDatabase = async () => {
+    try {
+        console.log('Connecting to MongoDB...');
+        await mongoose.connect(process.env.MONGODB_URI);
+        console.log('Database connected successfully');
+
+        // Now populate the database
+        await populateDatabase();
+    } catch (err) {
+        console.error('Error connecting to MongoDB:', err);
+    } 
+};
+
+// Execute the connection and population
+connectAndPopulateDatabase();
+
+export default mongoose.connection;
