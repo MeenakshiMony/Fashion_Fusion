@@ -91,3 +91,88 @@ h1 {
 .comment-button:hover {
   background: #0056b3;
 }
+.community {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.post-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.post-header {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.post-image {
+  width: 100%;
+  height: auto;
+  margin: 10px 0;
+  border-radius: 8px;
+}
+
+.post-content {
+  margin-bottom: 10px;
+}
+
+.post-interactions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.comments-toggle {
+  background-color: transparent;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.comments-toggle:hover {
+  text-decoration: underline;
+}
+
+.comments-section {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.comment {
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.comment-input-section {
+  display: flex;
+  margin-top: 10px;
+}
+
+.comment-input {
+  flex-grow: 1;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.comment-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  margin-left: 5px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.comment-button:hover {
+  background-color: #0056b3;
+}

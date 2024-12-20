@@ -1,105 +1,128 @@
 .virtual-try-on {
-  text-align: center;
-  color: #333;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100vh;
+  position: relative; /* Ensure it contains absolute children */
 }
 
 .page-header {
-  margin-bottom: 20px;
+  text-align: center;
+  margin-top: 20px;
 }
 
-.page-header h1 {
-  font-size: 2.5rem;
-  color: #333;
-}
-
-.page-header p {
-  font-size: 1.2rem;
-  color: #666;
-}
-
-.avatar-camera {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 30px;
-}
-
+/* Video feed positioning */
 .ar-container {
-  position: relative;
+  position: relative; /* Relative positioning for containing absolute children */
   width: 100%;
-  max-width: 600px;
-  height: 400px;
-  background: #eee;
+  height: calc(100vh - 110px); /* Adjust height to fit below the navbar */
+  margin-top: 110px; /* Leave space for the navbar */
   overflow: hidden;
 }
 
-.ar-container a-scene {
+a-scene {
+  position: absolute;
   width: 100%;
   height: 100%;
 }
 
-.webcam-feed {
-  display: none; /* Hidden since we are using the AR.js scene for camera */
-}
-
-.upload-container {
-  margin-top: 10px;
-}
-
-.upload-button {
-  background-color: #4CAF50;
-  color: white;
-  padding: 10px 20px;
-  font-size: 1rem;
-  border: none;
-  cursor: pointer;
-}
-
-.upload-button:hover {
-  background-color: #45a049;
-}
-
-.outfit-selection {
-  margin-top: 30px;
-}
-
-.outfit-selection h2 {
-  font-size: 1.8rem;
-  color: #333;
-}
-
-.outfit-grid {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-}
-
-.outfit-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 150px;
-  padding: 15px;
-  background-color: #f9f9f9;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-}
-
-.outfit-card img {
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
-  height: auto;
-  margin-bottom: 10px;
+  z-index: 10; /* Ensure it stays on top of everything else */
 }
 
-.outfit-card button {
-  padding: 8px 15px;
-  background-color: #008CBA;
+.side-panel {
+  position: fixed;
+  margin-top: 10px;
+  top: 110px; /* Adjust to align below the navbar */
+  right: 10px;
+  width: 300px;
+  height: calc(100vh - 120px); /* Adjust height */
+  background-color: #fff;
+  padding: 20px;
+  overflow-y: auto;
+  transition: transform 0.3s ease;
+  transform: translateX(100%);
+  z-index: 11; /* Ensure it's above the video and canvas */
+}
+
+.side-panel.open {
+  transform: translateX(0);
+}
+
+.toggle-panel {
+  position: fixed;
+  margin-top: 50px;
+  top: 20px;
+  right: 20px;
+  padding: 10px 15px;
+  background-color: #4CAF50;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  z-index: 12; /* Ensure it's above the side panel */
 }
 
-.outfit-card button:hover {
-  background-color: #007bb5;
+.outfit-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
+.outfit-card {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+  border-radius: 5px;
+  background-color: #fff;
+}
+
+.outfit-card img {
+  width: 100%;
+  border-radius: 5px;
+}
+
+.upload-container {
+  margin-top: 20px;
+}
+
+.upload-button {
+  display: inline-block;
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-top: 10px;
+}
+
+.video-canvas-container {
+  position: relative; /* Contain #webcam and .output_canvas within .ar-container */
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+#webcam {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1; /* Ensure it appears below the canvas */
+}
+
+.output_canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2; /* Ensure it appears above the webcam */
 }

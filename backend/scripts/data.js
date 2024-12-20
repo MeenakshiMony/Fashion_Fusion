@@ -9,14 +9,14 @@ const hashPassword = async (plainPassword) => {
 // Function to create users with hashed passwords
 const createUsers = async () => {
   return [
-    { username: 'Anna', email: 'anna@example.com', password: await hashPassword('anna@example.com') },
-    { username: 'James', email: 'james@example.com', password: await hashPassword('james@example.com') },
-    { username: 'Sophia', email: 'sophia@example.com', password: await hashPassword('sophia@example.com') },
-    { username: 'Lucas', email: 'lucas@example.com', password: await hashPassword('lucas@example.com') },
-    { username: 'Olivia', email: 'olivia@example.com', password: await hashPassword('olivia@example.com') },
-    { username: 'Ethan', email: 'ethan@example.com', password: await hashPassword('ethan@example.com') },
-    { username: 'Lily', email: 'lily@example.com', password: await hashPassword('lily@example.com') },
-    { username: 'Mason', email: 'mason@example.com', password: await hashPassword('mason@example.com') }
+    { username: 'Anna', email: 'anna@example.com', password: await hashPassword('anna@example.com'), avatar: 'http://localhost:8080/avatars/avatar_1.png' }, //change the avatar's path in production change it to domain
+    { username: 'James', email: 'james@example.com', password: await hashPassword('james@example.com'), avatar: 'http://localhost:8080/avatars/avatar_2.png' },
+    { username: 'Sophia', email: 'sophia@example.com', password: await hashPassword('sophia@example.com'), avatar: 'http://localhost:8080/avatars/avatar_3.png' },
+    { username: 'Lucas', email: 'lucas@example.com', password: await hashPassword('lucas@example.com'), avatar: 'http://localhost:8080/avatars/avatar_4.png' },
+    { username: 'Olivia', email: 'olivia@example.com', password: await hashPassword('olivia@example.com'), avatar: 'http://localhost:8080/avatars/avatar_6.png' },
+    { username: 'Ethan', email: 'ethan@example.com', password: await hashPassword('ethan@example.com') , avatar: 'http://localhost:8080/avatars/avatar_2.png'},
+    { username: 'Lily', email: 'lily@example.com', password: await hashPassword('lily@example.com') ,avatar: 'http://localhost:8080/avatars/avatar_1.png'},
+    { username: 'Mason', email: 'mason@example.com', password: await hashPassword('mason@example.com'), avatar: 'http://localhost:8080/avatars/avatar_4.png'  }
   ];
 };
 

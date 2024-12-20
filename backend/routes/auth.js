@@ -16,7 +16,32 @@ router.get('/users', async (req, res) => {
   }
 });
 
-router.post('/register', async (req, res) => {
+// GET: Fetch user by ID
+router.get('/users/:_id/', async (req, res) => {
+  const { _id } = req.params;
+
+  try {
+    // Find the user by ID
+    const user = await User.findById(_id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' }); // Handle case where user is not found
+    }
+
+    // Send a single response with user details and a success message
+    res.status(200).json({ 
+      message: 'Successfully retrieved user',
+      user: user 
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error fetching user', error });
+  }
+});
+
+
+
+router.post('/signup', async (req, res) => {
   const { username, email, password } = req.body;
 
   try {
@@ -50,13 +75,13 @@ router.post('/register', async (req, res) => {
   }
 });
 
-router.post('/auth/login', async (req, res) => {
+router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
   try {
     // Check if user exists
     const user = await User.findOne({ email });
-    if (!user) {
+    if (!user ) {
       return res.status(400).json({ message: "User not found" });
     }
 
@@ -68,16 +93,16 @@ router.post('/auth/login', async (req, res) => {
 
     // Create JWT token
     const token = jwt.sign(
-      { userId: user._id, username: user.username },
+      { userId: user._id },
       'yourSecretKey', // Use a secure secret key in production
       { expiresIn: '1h' } // Token expiry time
     );
 
     // Send the token back in response
-    res.json({ token });
+    res.status(200).json({ token });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: 'Login failed', error: err.message });
   }
 }); 
 

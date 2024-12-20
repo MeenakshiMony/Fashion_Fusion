@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon --inspect ./index.js --exec babel-node",
-    "SeedData": "nodemon --inspect ./scripts/SeedData.js --exec babel-node"
+    "start": "nodemon --inspect ./index.js --exec babel-node ",
+    "SeedData": "nodemon --inspect ./scripts/SeedData.js --exec babel-node",
+    "server": "nodemon --inspect ./server.js "
   },
   "author": "Meenakshi Merlin",
   "private": true,

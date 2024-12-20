@@ -41,3 +41,45 @@
 .profile-page button:hover {
   background-color: #0056b3;
 }
+.profile-card {
+  background: #eaebf0;
+  border-radius: 15px;
+  padding: 20px;
+  max-width: 400px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  font-family: Arial, sans-serif;
+  margin-bottom: 100px;
+}
+
+.profile-image img {
+  border-radius: 50%;
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border: 3px solid #ccc;
+  margin-right: 20px;
+}
+
+.profile-details h2 {
+  margin: 0;
+  color: #333;
+}
+
+.profile-details p {
+  margin: 5px 0;
+  color: #555;
+  text-align: left;
+  margin-left: 20px;
+}
+
+.profile-details a {
+  color: #0066cc;
+  text-decoration: none;
+}
+
+.profile-details a:hover {
+  text-decoration: underline;
+}
