@@ -5,6 +5,7 @@ import PostModel from '../model/Post.js';
 import initializeData from './data.js';
 import dotenv from 'dotenv';
 
+
 dotenv.config(); // Load environment variables
 
 const populateDatabase = async () => {
@@ -21,14 +22,6 @@ const populateDatabase = async () => {
         // Insert Users
         await UserModel.insertMany(users);
         console.log('Users inserted successfully');
-
-        /* // Insert Posts
-        await PostModel.insertMany(posts);
-        console.log('Posts inserted successfully');
-
-        // Insert Comments
-        await CommentModel.insertMany(comments);
-        console.log('Comments inserted successfully'); */
 
         const savedPosts = await PostModel.insertMany(posts);
 
@@ -48,7 +41,7 @@ const populateDatabase = async () => {
             });
         }
 
-        console.log('Posts and comments initialized successfully');
+        console.log('Posts and comments inserted successfully');
     } catch (error) {
         console.error('Error during database population:', error);
     }

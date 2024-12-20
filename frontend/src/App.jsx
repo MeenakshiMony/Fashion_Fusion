@@ -12,24 +12,25 @@ import LoginPage from './components/LoginPage';
 import SignupPage from './components/SignupPage';
 import './styles/App.css';
 
-function App() {
-  const isAuthenticated = !!localStorage.getItem("token"); // Check if token exists
+// PrivateRoute Component
+const PrivateRoute = ({ children }) => {
+  const token = localStorage.getItem("token"); // Check if token exists
+  return token ? children : <Navigate to="/login" />;
+};
 
+function App() {
   return (
     <Router>
       <div className="App">
         <Navbar />
-        <Routes future={{ v7_relativeSplatPath: true }}>
+        <Routes future={{ v7_startTransition: true }}>
           <Route path="/" element={<HomePage />} />
           <Route path="/stylist" element={<StylistPage />} />
           <Route path="/tryon" element={<TryOnPage />} />
           <Route path="/community" element={<CommunityPage />} />
-          
-          {/* Protected Profile Route */}
-          <Route
-            path="/profile"
-            element={isAuthenticated ? <ProfilePage /> : <Navigate to="/login" />}
-          />
+
+          {/* Use PrivateRoute for protected routes */}
+          <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
 
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
@@ -44,3 +45,7 @@ function App() {
 }
 
 export default App;
+
+// suggestions to be made:
+//Validate the token by sending a request to the server to verify its authenticity
+//The Navbar can dynamically show links based on user authentication (e.g., show Profile or Logout only for logged-in users).

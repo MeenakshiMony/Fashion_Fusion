@@ -58,33 +58,57 @@ const CommunityPage = () => {
     setNewComments({ ...newComments, [postId]: e.target.value }); // Dynamically update the comment for each post
   };
 
-  const handleAddComment = async (postId) => {
-    if (newComments[postId]?.trim()) {
+  const handleCommentToggle = async (postId) => {
+    const updatedPosts = posts.map((p) =>
+      p.id === postId ? { ...p, showComments: !p.showComments } : p
+    );
+  
+    setPosts(updatedPosts);
+  
+    const post = posts.find((p) => p.id === postId);
+    if (!post.commentsLoaded && !post.showComments) {
       try {
-        const response = await fetch(`http://localhost:8080/posts/${postId}/comments`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ text: newComments[postId] }), // Send the new comment to the backend
-        });
-  
-        if (!response.ok) {
-          throw new Error('Failed to add comment');
-        }
-  
-        const updatedPost = await response.json(); // Get the updated post from the server
-        const updatedPosts = posts.map((post) =>
-          post.id === postId ? updatedPost : post
+        const response = await fetch(`http://localhost:8080/comments/${postId}`);
+        if (!response.ok) throw new Error('Failed to load comments');
+        const comments = await response.json();
+        setPosts((prev) =>
+          prev.map((p) =>
+            p.id === postId
+              ? { ...p, comments, commentsLoaded: true }
+              : p
+          )
         );
-        setPosts(updatedPosts);
-        setNewComments({ ...newComments, [postId]: '' }); // Reset the comment input
-      } catch (error) {
-        setError('Error adding comment');
+      } catch (err) {
+        console.error(err);
       }
     }
   };
+
+  const handleAddComment = async (postId) => {
+    const newComment = newComments[postId];
+    if (!newComment) return;
   
+    try {
+      const response = await fetch(`http://localhost:8080/comments/${postId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: newComment, user: 'Current User' }), // Replace 'Current User' dynamically
+      });
+      if (!response.ok) {
+        throw new Error('Failed to add comment');
+      }
+  
+      const updatedPost = await response.json();
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post._id === postId ? updatedPost : post
+        )
+      );
+      setNewComments({ ...newComments, [postId]: '' });
+    } catch (error) {
+      console.error('Error adding comment:', error);
+    }
+  };
 
   return (
     <div className="community">
@@ -102,30 +126,42 @@ const CommunityPage = () => {
               <img src={post.imageUrl} alt="Post" className="post-image" />
               <p className="post-content">{post.content}</p>
               <div className="post-interactions">
-                <span className="likes">{post.likes} Likes </span>
-                <span className="comments">{post.comments.length} Comments</span>
-              </div>
-              <div key={post.id} className="comment-section">
-                <input
-                  type="text"
-                  value={newComments[post.id] || ''}
-                  onChange={(e) => handleCommentChange(e, post.id)}
-                  placeholder="Add a comment..."
-                  className="comment-input"
-                />
-                <button onClick={() => handleAddComment(post.id)} className="comment-button">
-                  Post
+                <span className="likes">{post.likes} Likes</span>
+                <button
+                  onClick={() => handleCommentToggle(post.id)}
+                  className="comments-toggle">
+                  {post.showComments ? "Hide Comments" : "View Comments"}
                 </button>
-                <div className="comments-list">
-                  {post.comments.map((comment) => (
-                    <div key={`${post.id}-${comment.id}`} className="comment">   {/* Combine post.id and comment.id */}
-                      <p>{comment.text}</p>
-                    </div>
-                  ))}
-                </div>
               </div>
+              {post.showComments && (
+                <div className="comments-section">
+                  <h3>Comments</h3>
+                  <div className="comments-list">
+                    {post.comments.map((comment) => (
+                      <div key={comment.id} className="comment">
+                        <p>{comment.text}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="comment-input-section">
+                    <input
+                      type="text"
+                      value={newComments[post.id] || ''}
+                      onChange={(e) => handleCommentChange(e, post.id)}
+                      placeholder="Add a comment..."
+                      className="comment-input"
+                    />
+                    <button
+                      onClick={() => handleAddComment(post.id)}
+                      className="comment-button"
+                    >
+                      Post
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
-          ))
+          ))          
         ) : (
           <p>No posts available</p>
         )}

@@ -30,3 +30,9 @@ yarn-error.log*
 #npm start --> Your React app will open in your default web browser at http://localhost:3000. Ctrl + C --> to close the local hosting
 
 #npm install ar.js three --> install these packages
+
+#others
+/src/components/OldTryonpage.jsx
+/src/components/OldHomePage.jsx
+/src/styles/OldHomePage.css
+/src/styles/Oldtryonpage.css

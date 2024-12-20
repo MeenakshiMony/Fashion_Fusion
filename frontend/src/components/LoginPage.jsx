@@ -16,17 +16,16 @@ const LoginSignupPage = () => {
     e.preventDefault();
     try {
       // Make the login request to the backend
-      const response = await axios.post("/auth/login", { email, password });
+      const response = await axios.post("/login", { email, password });
 
       // Check if the response contains the token
       if (response.data.token) {
         // Store the JWT token in localStorage
         localStorage.setItem("token", response.data.token);
 
-        // Redirect user to the home page or another page
-        navigate('/home');
-        setSuccess("Login successful!"); // Show success message
-        setError(""); // Clear any previous error messages
+        setSuccess("Login successful!");
+        setError("");
+        setTimeout(() => navigate('/profile'), 1000); // Redirect after 1 second
       }
     } catch (err) {
       // Handle error

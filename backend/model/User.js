@@ -6,6 +6,7 @@ import mongoose from 'mongoose';
   username: { type: String, required: true, unique: true ,trim:true},
   email: { type: String, required: true, unique: true ,trim:true},
   password: { type: String, required: true }, //hashed password
+  avatar: { type: String },
   profile: {
     firstName: String,
     lastName: String,

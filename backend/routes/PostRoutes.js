@@ -15,6 +15,25 @@ router.get('/posts', async (req, res) => {
   }
 });
 
+// GET: Fetch comments for a specific post
+router.get('/posts/:postId/comments', async (req, res) => {
+  const { postId } = req.params;
+
+  try {
+    // Find the post by ID and populate its comments
+    const post = await Post.findById(postId).populate('comments');
+
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    res.status(200).json(post.comments); // Return the comments
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error fetching comments', error });
+  }
+});
+
 
 // POST route to add a new comment to a specific post
 router.post('/posts/:id/comments', async (req, res) => {
@@ -35,16 +54,20 @@ router.post('/posts/:id/comments', async (req, res) => {
     await newComment.save();
 
     // Add the new comment's ObjectId to the post's comments array
-    PostModel.comments.push(newComment._id);
+    post.comments.push(newComment._id);
 
     // Save the post with the updated comments array
     await post.save();
 
+    // Fetch the updated post with populated comments to return as response
+    const updatedPost = await PostModel.findById(id).populate('comments');
+
     // Respond with the updated post
-    res.status(201).json(post);
+    res.status(201).json(updatedPost);
   } catch (err) {
     res.status(500).json({ message: "Error adding comment", error: err.message });
   }
 });
+
 
 export default router;
