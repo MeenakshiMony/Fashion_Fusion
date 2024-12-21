@@ -60,7 +60,7 @@ npm start
 cd frontend
 npm run dev
 ```
-The project should now be running at http://localhost:8080.
+The project should now be running at http://localhost:5173.
 
 ## Usage
 1. Sign Up or Log In: Create an account to access personalized features.
