@@ -49,7 +49,9 @@ cd Fashion_Fusion
 npm install
 ```
 4. Download 3D outfit models from following link:
+This folder contains a zipped folder, Unzip it and save them in backend/models folder
 [Link](https://drive.google.com/drive/folders/1DsA9zq-UW7Z9FB2pPohS6ryD86z1Hh_G?usp=sharing)
+
 5. Run the development server:
 ```
 cd backend
