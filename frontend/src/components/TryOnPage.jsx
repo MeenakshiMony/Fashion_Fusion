@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import '../styles/TryOnPage.css';
 import { PoseLandmarker, FilesetResolver, DrawingUtils } from "https://cdn.skypack.dev/@mediapipe/tasks-vision@0.10.0";
+import "@google/model-viewer";
 import * as THREE from 'three'; 
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'; 
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+
 
 const VirtualTryOnPage = () => {
   const [isPanelOpen, setPanelOpen] = useState(true);
@@ -20,15 +22,14 @@ const VirtualTryOnPage = () => {
   // Track the webcam stream
   const webcamStreamRef = useRef(null);
 
-  // Initialize a Three.js scene
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
-  const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  document.body.appendChild(renderer.domElement);  // Add renderer to the DOM
-
-  const loader = new GLTFLoader();
   let model;
+
+  // Create a Three.js scene
+  const [scene, setScene] = useState(null);
+  const [camera, setCamera] = useState(null);
+  const [renderer, setRenderer] = useState(null);
+  const threeCanvasRef = useRef(null);
+
 
   // Initialize PoseLandmarker
   const createPoseLandmarker = async () => {
@@ -179,17 +180,6 @@ const VirtualTryOnPage = () => {
       .then((blob) => {
         const objectURL = URL.createObjectURL(blob); // Create an object URL for the model
         console.log('Model loaded successfully:', objectURL);
-
-        // Load the GLTF model using Three.js
-        loader.load(objectURL, (gltf) => {
-          model = gltf.scene;
-          scene.add(model);
-          model.scale.set(0.5, 0.5, 0.5);  // Adjust scale as needed
-          animate(); // Start the animation loop
-        });
-      })
-      .catch((error) => {
-        console.error('Error loading model:', error);
       });
   };
 
@@ -203,6 +193,61 @@ const VirtualTryOnPage = () => {
 
     renderer.render(scene, camera);
   };
+
+  const initializeThreeJS = () => {
+    const canvas = threeCanvasRef.current;
+  
+    // Set up the scene
+    const threeScene = new THREE.Scene();
+    setScene(threeScene);
+  
+    // Set up the camera
+    const threeCamera = new THREE.PerspectiveCamera(
+      75,
+      canvas.clientWidth / canvas.clientHeight,
+      0.1,
+      1000
+    );
+    threeCamera.position.z = 5;
+    setCamera(threeCamera);
+  
+    // Set up the renderer
+    const threeRenderer = new THREE.WebGLRenderer({ canvas, alpha: true });
+    threeRenderer.setSize(canvas.clientWidth, canvas.clientHeight);
+    setRenderer(threeRenderer);
+  
+    // Add light to the scene
+    const light = new THREE.AmbientLight(0xffffff, 1);
+    threeScene.add(light);
+  };
+
+  const addModelToScene = (landmark) => {
+    if (scene && camera && renderer) {
+      const loader = new THREE.GLTFLoader(); // Load 3D model
+      loader.load(
+        'path/to/your/model.gltf',
+        (gltf) => {
+          const model = gltf.scene;
+  
+          // Scale and position the model based on the landmark
+          model.scale.set(0.1, 0.1, 0.1); // Adjust scale
+          model.position.set(landmark.x * 5 - 2.5, -(landmark.y * 5 - 2.5), 0); // Adjust position
+          scene.add(model);
+  
+          // Start animation loop
+          const animate = () => {
+            model.rotation.y += 0.01; // Rotate the model
+            renderer.render(scene, camera);
+            requestAnimationFrame(animate);
+          };
+          animate();
+        },
+        undefined,
+        (error) => console.error('Error loading model:', error)
+      );
+    }
+  };
+  
 
   return (
     <div className="virtual-try-on">
@@ -246,44 +291,49 @@ const VirtualTryOnPage = () => {
           )}
         </div>
       </section>
-
-      <div className={`side-panel ${isPanelOpen ? 'open' : 'closed'}`}>
-        {isPanelOpen && (
-          <div className="outfit-selection">
-            <h2>Select an Outfit</h2>
-            <div className="outfit-grid">
-              <div className="outfit-card">
-                <h2>Select a Model</h2>
-                {models.length === 0 ? (
-                  <p>No models available.</p>
-                ) : (
-                  <ul>
-                    {models.map((model, index) => (
-                      <li key={index}>
-                        <button onClick={() => handleModelSelection(model)}>
-                          {model.name} {/* Render model's name */}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                {selectedOutfit && <p>You selected: {selectedOutfit}</p>}
-              </div>
-            </div>
-
-            <div className="upload-container">
-              <input
-                type="file"
-                id="upload-avatar"
-                aria-label="Upload your avatar image"
-              />
-              <label htmlFor="upload-avatar" className="upload-button">
-                Upload Outfit
-              </label>
+        
+      <div className={`side-panel ${isPanelOpen ? "open" : "closed"}`}>
+      {isPanelOpen && (
+        <div className="outfit-selection">
+          <h2>Select an Outfit</h2>
+          <div className="outfit-grid">
+            <div className="outfit-card">
+              <h2>Select a Model</h2>
+              {selectedOutfit && <p>You selected: {selectedOutfit}</p>}
+              <ul className="model-list">
+                {models.map((model, index) => (
+                  <li
+                    key={index}
+                    className="model-item"
+                    onClick={() => setSelectedOutfit(model.name)} // Set selected model
+                  >
+                    <model-viewer
+                      src={model.url}
+                      alt={model.name}
+                      auto-rotate
+                      camera-controls
+                      style={{ width: "200px", height: "200px" }}
+                    ></model-viewer>
+                    <p>{model.name}</p>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
-        )}
-      </div>
+
+          <div className="upload-container">
+            <input
+              type="file"
+              id="upload-avatar"
+              aria-label="Upload your avatar image"
+            />
+            <label htmlFor="upload-avatar" className="upload-button">
+              Upload Outfit
+            </label>
+          </div>
+        </div>
+      )}
+    </div>
 
       <button
         className="toggle-panel"
