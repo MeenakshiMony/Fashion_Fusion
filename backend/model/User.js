@@ -12,6 +12,9 @@ import mongoose from 'mongoose';
     lastName: String,
     bio: String,
   },
+  followersCount: { type: Number, default: 0 },  // To track followers
+  followingCount: { type: Number, default: 0 },  // To track following users
+  likedPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post', default: [] }],  // Posts liked by the user
 });
 
 const UserModel = mongoose.model('User', userSchema);

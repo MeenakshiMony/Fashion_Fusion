@@ -1,51 +1,8 @@
 import mongoose from 'mongoose';
-import CommentModel from '../model/Comment.js';
-import UserModel from '../model/User.js';
-import PostModel from '../model/Post.js';
 import initializeData from './data.js';
 import dotenv from 'dotenv';
 
-
 dotenv.config(); // Load environment variables
-
-const populateDatabase = async () => {
-    try {
-        // Clear previous data
-        await UserModel.deleteMany({});
-        await PostModel.deleteMany({});
-        await CommentModel.deleteMany({});
-        console.log('Previous data cleared successfully');
-
-        // Initialize data
-        const { users, posts, commentsData } = await initializeData();
-
-        // Insert Users
-        await UserModel.insertMany(users);
-        console.log('Users inserted successfully');
-
-        const savedPosts = await PostModel.insertMany(posts);
-
-        const comments = commentsData.map((comment, index) => {
-            const postIndex = index % savedPosts.length;
-            return {
-                ...comment,
-                postId:savedPosts[postIndex]._id,
-            };
-        });
-
-        const savedComments = await CommentModel.insertMany(comments);
-
-        for(const comment of savedComments) {
-            await PostModel.findByIdAndUpdate(comment.postId, {
-                $push: { comments: comment._id },
-            });
-        }
-
-        console.log('Posts and comments inserted successfully');
-    } catch (error) {
-        console.error('Error during database population:', error);
-    }
-};
 
 const connectAndPopulateDatabase = async () => {
     try {
@@ -53,14 +10,21 @@ const connectAndPopulateDatabase = async () => {
         await mongoose.connect(process.env.MONGODB_URI);
         console.log('Database connected successfully');
 
-        // Now populate the database
-        await populateDatabase();
     } catch (err) {
         console.error('Error connecting to MongoDB:', err);
+        process.exit(1); // Exit with failure
     } 
 };
 
-// Execute the connection and population
-connectAndPopulateDatabase();
+const main = async () => {
+    await connectAndPopulateDatabase(); // Establish connection to MongoDB
+    await initializeData(); // Populate the database with fresh data
+    process.exit(0); // Exit gracefully after completion
+};
+
+main().catch((error) => {
+    console.error('Error initializing database:', error);
+    process.exit(1);
+});
 
 export default mongoose.connection;
