@@ -1,5 +1,3 @@
-
-
 a {
   text-decoration: none; /* Removes underline for links */
 }
@@ -110,3 +108,11 @@ a {
   background-color: #0056b3;
 }
 
+
+@media (max-width: 768px) {
+
+  .features {
+    flex-direction: column;
+  }
+
+}

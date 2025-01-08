@@ -27,7 +27,7 @@
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.0.2",
     "rimraf": "^6.0.1",
-    "three": "^0.169.0",
+    "three": "0.169.0",
     "three-stdlib": "^2.35.2",
     "vitest": "^2.1.2",
     "web-vitals": "^4.2.3"

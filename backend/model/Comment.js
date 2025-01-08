@@ -1,14 +1,13 @@
-
 import mongoose from 'mongoose';
 
 const commentSchema = new mongoose.Schema({
   postId: { type: mongoose.Schema.Types.ObjectId, ref: 'Post', required: true },  
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, 
-  content: { type: String, required: true },
-  likes: { type: Number, default: 0 },  // Number of likes on the comment
+  content: { type: String, required: true, maxLength: 500 },
+  likes: { type: Number, default: 0 },  
   replies: [{
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    content: { type: String },
+    content: { type: String, maxLength: 500 },
     createdAt: { type: Date, default: Date.now },
   }],
   createdAt: { type: Date, default: Date.now }

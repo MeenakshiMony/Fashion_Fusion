@@ -23,7 +23,7 @@ router.get('/comments', async (req, res) => {
 router.get('/comments/:postId', async(req,res) => {
   const { postId } = req.params;// Extract postId from route parameters
   try {
-    const comments = await Comment.find({ postId }); // Query comments by postId
+    const comments = await Comment.find({ postId }).populate('userId', 'username');; // Query comments by postId
     if(comments.length === 0) {
       return res.status(404).json({ message: 'No comments found for this post.'});
     }

@@ -1,4 +1,6 @@
 .footer {
+  position: relative;
+  bottom: 10px;
   padding: 20px;
   background-color: #f8f9fa;
   text-align:center;

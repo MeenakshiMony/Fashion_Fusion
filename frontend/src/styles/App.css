@@ -28,9 +28,8 @@
   }
 }
 
-/* Basic reset and layout setup */
 html, body {
-  height: 100%;
+  height: 100vh;
   margin: 0;
   font-family: Arial, sans-serif;
 }

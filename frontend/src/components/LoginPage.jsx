@@ -18,6 +18,7 @@ const LoginSignupPage = () => {
       // Make the login request to the backend
       const response = await axios.post("/login", { email, password });
 
+      console.log(response.data.token);
       // Check if the response contains the token
       if (response.data.token) {
         // Store the JWT token in localStorage
@@ -42,23 +43,11 @@ const LoginSignupPage = () => {
       <form onSubmit={handleLogin} className="login-form">
         <div className="form-group">
             <label htmlFor="email">Email:</label>
-            <input
-              type="email"
-              value={email}
-              onChange={ (e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
-              required
-            />
+            <input type="email" value={email} onChange={ (e) => setEmail(e.target.value)} placeholder="Enter your email" required />
         </div>
         <div className="form-group">
           <label htmlFor="password">Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={ (e) => setPassword(e.target.value)}
-            placeholder="Enter your password"
-            required
-          /> 
+          <input type="password" value={password} onChange={ (e) => setPassword(e.target.value)} placeholder="Enter your password" required /> 
         </div>    
         <button type="submit">Login</button>
       {error && <div style={{ color: "red" }}>{error}</div>}

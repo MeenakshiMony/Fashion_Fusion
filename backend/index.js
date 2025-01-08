@@ -1,9 +1,10 @@
-import mongoose from 'mongoose';
 import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import fs from 'fs';
 import path from 'path';
+import dotenv from 'dotenv';
+dotenv.config();
 
 import { populateDatabase } from './scripts/dbinit';  // Import populateDatabase function
 import commentRoutes from './routes/CommentRoutes'; 
@@ -11,7 +12,7 @@ import postRoutes from './routes/PostRoutes';
 import userRoutes from './routes/auth'; 
 
 const app = express();
-const PORT = 8080;
+const PORT = process.env.PORT;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 

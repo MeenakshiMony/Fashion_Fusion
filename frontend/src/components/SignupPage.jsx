@@ -16,18 +16,15 @@ const SignupPage = () => {
     
     if (password !== confirmPassword) {
       setError("Passwords do not match!");
-      setSuccess(""); // Clear any previous success message
+      setSuccess(""); 
       return;
     }
-
     try {
       const response = await axios.post("http://localhost:8080/signup", {
         username,
         email,
         password,
       });
-
-      console.log(response.data); //can be deleted later if not needed
 
       // On successful signup, set the JWT token in localStorage
       if (response.data.token) {
@@ -48,44 +45,20 @@ const SignupPage = () => {
       <form onSubmit={handleSignup} className="signup-form">
         <div className="form-group">
             <label htmlFor="name">Name:</label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter username"
-              required
-            />
+            <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Enter username" required/>
         </div> 
         
         <div className="form-group">
           <label htmlFor="email">Email:</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter email"
-            required
-          />
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Enter email" required />
         </div>
         <div className="form-group">
           <label htmlFor="password">Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter the password"
-            required
-          />
+          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter the password" required />
         </div>
         <div className="form-group">
           <label htmlFor="confirmPassword">Confirm Password:</label>
-          <input
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="Enter the password again"
-            required
-          />
+          <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Enter the password again" required/>
         </div>
         <button type="submit">Sign Up</button>
       </form>

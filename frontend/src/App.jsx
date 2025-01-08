@@ -12,9 +12,8 @@ import LoginPage from './components/LoginPage';
 import SignupPage from './components/SignupPage';
 import './styles/App.css';
 
-// PrivateRoute Component
-const PrivateRoute = ({ children }) => {
-  const token = localStorage.getItem("token"); // Check if token exists
+const PrivateRoute = ({children}) => {
+  const token = localStorage.getItem("token"); 
   return token ? children : <Navigate to="/login" />;
 };
 
@@ -46,6 +45,3 @@ function App() {
 
 export default App;
 
-// suggestions to be made:
-//Validate the token by sending a request to the server to verify its authenticity
-//The Navbar can dynamically show links based on user authentication (e.g., show Profile or Logout only for logged-in users).

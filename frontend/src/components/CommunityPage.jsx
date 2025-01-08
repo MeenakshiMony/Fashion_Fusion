@@ -1,114 +1,124 @@
 import React, { useState, useEffect } from 'react';
+import axios from '../utils/axios';
+import { jwtDecode } from "jwt-decode";
 import '../styles/CommunityPage.css';
 
 const CommunityPage = () => {
-  const [posts, setPosts] = useState([]);  // Initialize posts as an empty array
-  const [newComments, setNewComments] = useState({});  // Map for new comments per post
+  const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  
-  // Sample data for fallback in case API call fails
-  const samplePosts = [
-    {
-      id: 1,
-      user: 'User1',
-      content: 'Just got this new outfit! What do you think?',
-      imageUrl: "https://images.pexels.com/photos/1620782/pexels-photo-1620782.jpeg?auto=compress&cs=tinysrgb&w=600",
-      likes: 10,
-      comments: [
-        { id: 1, text: 'Nice outfit!' },
-        { id: 2, text: 'Looks amazing!' }
-      ]
-    },
-    {
-      id: 2,
-      user: 'User2',
-      content: 'Love this dress for the summer season!',
-      imageUrl: 'https://images.pexels.com/photos/2907034/pexels-photo-2907034.jpeg?auto=compress&cs=tinysrgb&w=600',
-      likes: 18,
-      comments: [
-        { id: 1, text: 'Perfect for summer!' }
-      ]
-    },
-  ];
 
   // Fetch posts from backend
   useEffect(() => {
-    const fetchPosts = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch('http://localhost:8080/posts');  // Corrected API endpoint
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
-        setPosts(data);  // Set the posts data from the API response
-      } catch (error) {
-        setError(`Error fetching posts: ${error.message || 'Unknown error'}`);
-        setPosts(samplePosts);  // Use sample data in case of error
-      } finally {
-        setLoading(false);
-      }
-    };
+    setLoading(true);
+    axios.get('/posts')
+      .then(response => setPosts(response.data))
+      .catch(err => {
+        setError(`Error fetching posts: ${err.message || 'Unknown error'}`);
+        setPosts([]);
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
-    fetchPosts();
-  }, []);  // Empty array means this runs once when the component mounts
-
-  const handleCommentChange = (e, postId) => {
-    setNewComments({ ...newComments, [postId]: e.target.value }); // Dynamically update the comment for each post
+  const getLoggedInUserId = () => {
+    // Or use cookies
+   try {
+     const token = localStorage.getItem('token');
+     const decodedToken = jwtDecode(token);
+     return decodedToken?.userId;
+   } catch (error) {
+     console.error('Invalid token:', error);
+     return null;
+   }
   };
 
   const handleCommentToggle = async (postId) => {
-    const updatedPosts = posts.map((p) =>
-      p.id === postId ? { ...p, showComments: !p.showComments } : p
+    // Toggle the showComments state for the selected post
+    setPosts((prevPosts) =>
+      prevPosts.map((post) =>
+        post._id === postId ? { ...post, showComments: !post.showComments } : post
+      )
     );
   
-    setPosts(updatedPosts);
-  
-    const post = posts.find((p) => p.id === postId);
-    if (!post.commentsLoaded && !post.showComments) {
+    // Check if comments have already been loaded
+    const selectedPost = posts.find((post) => post._id === postId);
+    if (!selectedPost.commentsLoaded && !selectedPost.showComments) {
       try {
-        const response = await fetch(`http://localhost:8080/comments/${postId}`);
-        if (!response.ok) throw new Error('Failed to load comments');
-        const comments = await response.json();
-        setPosts((prev) =>
-          prev.map((p) =>
-            p.id === postId
-              ? { ...p, comments, commentsLoaded: true }
-              : p
-          )
-        );
-      } catch (err) {
-        console.error(err);
+        const response = await axios.get(`/comments/${postId}`);
+        if (response.status === 200) {
+          const comments = response.data;
+  
+          // Update the comments and mark as loaded
+          setPosts((prevPosts) =>
+            prevPosts.map((post) =>
+              post._id === postId
+                ? { ...post, comments, commentsLoaded: true }
+                : post
+            )
+          );
+        }
+      } catch (error) {
+        console.error('Error fetching comments:', error);
+        setError('Failed to load comments. Please try again.');
       }
+    }
+  };  
+
+  const handleAddComment = async (postId, event) => {
+    const inputElement = event.target.previousElementSibling; // Input element
+    const newCommentContent = inputElement.value.trim();
+
+    if (!newCommentContent) return;
+
+    try {
+      const currentUserId = getLoggedInUserId();
+      if (!currentUserId) {
+        setError("User not logged in. Please log in to add a comment.");
+        return;
+      }
+      const response = await axios.post(`/posts/${postId}/comments`, {
+        content: newCommentContent,
+        userId: currentUserId,
+      });
+
+      // Reset the input field after submission
+      inputElement.value = '';
+      const updatedPost = response.data; 
+      console.log(`post after comment`,updatedPost);
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post._id === postId ? { ...post, comments: updatedPost.comments } : post
+        )
+      );
+    } catch (error) {
+      console.error('Error adding comment:', error);
+      setError('Failed to add comment. Please try again.');
     }
   };
 
-  const handleAddComment = async (postId) => {
-    const newComment = newComments[postId];
-    if (!newComment) return;
-  
+  const handleLike = async (postId) => {
     try {
-      const response = await fetch(`http://localhost:8080/comments/${postId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: newComment, user: 'Current User' }), // Replace 'Current User' dynamically
-      });
-      if (!response.ok) {
-        throw new Error('Failed to add comment');
+      const currentUserId = getLoggedInUserId(); 
+      if (!currentUserId) {
+        setError("User not logged in. Please log in to like posts.");
+        return;
       }
-  
-      const updatedPost = await response.json();
+      const response = await axios.post(`/posts/${postId}/like`,
+        { userId: currentUserId }, 
+        { headers: { 'Content-Type': 'application/json' } }
+      );
+      const updatedPost = response.data; // Backend returns the updated post
       setPosts((prevPosts) =>
         prevPosts.map((post) =>
-          post._id === postId ? updatedPost : post
+          post._id === postId ? { ...post, likes: updatedPost.likes } : post
         )
       );
-      setNewComments({ ...newComments, [postId]: '' });
     } catch (error) {
-      console.error('Error adding comment:', error);
+      console.error('Error liking post:', error);
+      setError('Failed to like post. Please try again.');
     }
   };
+
 
   return (
     <div className="community">
@@ -119,16 +129,19 @@ const CommunityPage = () => {
         <h2>Latest Posts</h2>
         {posts.length > 0 ? (
           posts.map((post) => (
-            <div key={post.id} className="post-card">
+            <div key={post._id} className="post-card">
               <div className="post-header">
-                <span className="post-user">{post.user}</span>
+                <span className="post-user">{post.userId.username}</span>
               </div>
               <img src={post.imageUrl} alt="Post" className="post-image" />
               <p className="post-content">{post.content}</p>
               <div className="post-interactions">
-                <span className="likes">{post.likes} Likes</span>
+                <button className="like-button" onClick={() => handleLike(post._id)}>
+                  <span className="star-icon">&#9734;</span> 
+                  {post.likes} Likes
+                </button>
                 <button
-                  onClick={() => handleCommentToggle(post.id)}
+                  onClick={() => handleCommentToggle(post._id)}
                   className="comments-toggle">
                   {post.showComments ? "Hide Comments" : "View Comments"}
                 </button>
@@ -138,30 +151,28 @@ const CommunityPage = () => {
                   <h3>Comments</h3>
                   <div className="comments-list">
                     {post.comments.map((comment) => (
-                      <div key={comment.id} className="comment">
-                        <p>{comment.text}</p>
+                      <div key={comment._id} className="comment">
+                        <p><strong>{comment.userId.username}</strong>: {" "+comment.content}</p>
                       </div>
                     ))}
                   </div>
                   <div className="comment-input-section">
                     <input
-                      type="text"
-                      value={newComments[post.id] || ''}
-                      onChange={(e) => handleCommentChange(e, post.id)}
+                      type="text"                      
                       placeholder="Add a comment..."
                       className="comment-input"
                     />
                     <button
-                      onClick={() => handleAddComment(post.id)}
+                      onClick={(e) => handleAddComment(post._id, e)}
                       className="comment-button"
                     >
-                      Post
+                      Add Comment
                     </button>
                   </div>
                 </div>
               )}
             </div>
-          ))          
+          ))
         ) : (
           <p>No posts available</p>
         )}

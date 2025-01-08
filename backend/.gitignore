@@ -36,3 +36,4 @@ yarn-error.log*
 /index.html
 /server.js
 /models 
+/scripts/sampleData.js

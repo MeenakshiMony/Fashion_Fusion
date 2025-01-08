@@ -14,7 +14,7 @@ const HomePage = () => {
           </Link>
         </div>
         <div className="hero-image">
-          <img src="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f" alt="Fashion" />
+          <img src="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f" alt="Fashion Fusion" />
         </div>
       </section>
 
@@ -38,7 +38,7 @@ const HomePage = () => {
         </div>
 
         <div className="feature-item">
-          <img src="https://images.unsplash.com/photo-1492562080023-ab3db95bfbce" alt="Community" />
+          <img src="https://images.unsplash.com/photo-1492562080023-ab3db95bfbce" alt="Community Engagement" />
           <h2>Community Engagement</h2>
           <p>Share your outfits and engage with fashion enthusiasts.</p>
           <Link to="/community">

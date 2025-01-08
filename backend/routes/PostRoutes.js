@@ -1,73 +1,98 @@
 import express from 'express';
 const router = express.Router();
-import PostModel from '../model/Post'; // Import the Post model
-import Comment from '../model/Comment'; // Import the Comment model (make sure it's defined)
+import PostModel from '../model/Post'; 
+import Comment from '../model/Comment';
 
-
-// GET route to fetch all posts along with populated comments
+//fetch all posts along with populated comments
 router.get('/posts', async (req, res) => {
   try {
-    // Fetch all posts and populate comments field with the actual comment data
-    const posts = await PostModel.find().populate('comments');
+    const posts = await PostModel.find().populate({
+      path: 'comments', // Populate comments
+      populate: {
+        path: 'userId', // Further populate user details within comments
+        select: 'username', // Select specific fields (e.g., name and email)
+      },
+    }).populate({
+      path: 'userId', // Populate user who created the post
+      select: 'username', // Select specific fields from the user
+    });
+;
     res.status(200).json(posts);
   } catch (err) {
     res.status(500).json({ message: "Error retrieving posts", error: err.message });
   }
 });
 
-// GET: Fetch comments for a specific post
-router.get('/posts/:postId/comments', async (req, res) => {
-  const { postId } = req.params;
-
-  try {
-    // Find the post by ID and populate its comments
-    const post = await Post.findById(postId).populate('comments');
+//fetch post by id
+router.get('/posts/:id', async (req,res) => {
+  try{
+    const { id } = req.params;
+    const post = await PostModel.findById(id);
 
     if (!post) {
-      return res.status(404).json({ message: 'Post not found' });
+      return res.status(404).json({ message: "Post not found" });
     }
-
-    res.status(200).json(post.comments); // Return the comments
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error fetching comments', error });
+    res.status(200).json(post);
   }
+   catch (err) {
+    res.status(500).json({ message: "Error retrieving posts", error: err.message })
+   }
 });
-
 
 // POST route to add a new comment to a specific post
 router.post('/posts/:id/comments', async (req, res) => {
-  const { id } = req.params;
-  const { text } = req.body;
-
+  const { id } = req.params; 
+  const { content, userId } = req.body; 
   try {
-    // Find the post by its ID
+    if (!content || !userId) {
+      return res.status(400).json({ error: 'Content and userId are required' });
+    }
+
     const post = await PostModel.findById(id);
     if (!post) {
       return res.status(404).json({ error: 'Post not found' });
     }
 
-    // Create a new comment instance
-    const newComment = new Comment({ text, post: id });
-
-    // Save the new comment to the database
+    const newComment = new Comment({ content, userId, postId: id });
     await newComment.save();
-
-    // Add the new comment's ObjectId to the post's comments array
     post.comments.push(newComment._id);
-
-    // Save the post with the updated comments array
     await post.save();
-
-    // Fetch the updated post with populated comments to return as response
-    const updatedPost = await PostModel.findById(id).populate('comments');
-
-    // Respond with the updated post
-    res.status(201).json(updatedPost);
+    const updatedPost = await PostModel.findById(id).populate({
+      path: 'comments', // Populate comments
+      populate: {
+        path: 'userId', // Further populate user details within comments
+        select: 'username', // Select specific fields (e.g., name and email)
+      },
+    });
+    res.status(201).json(updatedPost); 
   } catch (err) {
     res.status(500).json({ message: "Error adding comment", error: err.message });
   }
 });
 
+//POST route to add like
+router.post('/posts/:id/like', async (req,res) => {
+  const { id } = req.params;
+  try{
+    const post = await PostModel.findById(id);
+    if(!post){
+      return res.status(404).json({ error: 'Post not found' });
+    }
+    if(post.likedBy.includes(req.body.userId))
+    { // If the user has already liked the post, unlike it
+      post.likes -= 1;
+      post.likedBy.pull(req.body.userId);
+    }
+    else{
+      // If the user hasn't liked the post, like it
+      post.likes += 1;
+      post.likedBy.push(req.body.userId);
+    }
+    await post.save();
+    res.status(200).json(post);
+  } catch(err) {
+    res.status(500).json({ message:'Error liking post', error: err.message })
+  }
+})
 
 export default router;
