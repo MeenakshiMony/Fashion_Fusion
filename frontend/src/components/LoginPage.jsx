@@ -1,33 +1,48 @@
 import React, { useState } from "react";
-import '../styles/LoginPage.css';
+import "../styles/LoginPage.css";
 import axios from "../utils/axios";
 import { useNavigate } from "react-router-dom";
 
+const LoginPage = () => {
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-const LoginSignupPage = () => {
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState(""); // For handling success messages
+  // Handle input changes
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
+  // Handle form submission (Login)
   const handleLogin = async (e) => {
     e.preventDefault();
+
+    const { email, password } = formData;
+
     try {
       // Make the login request to the backend
       const response = await axios.post("/login", { email, password });
+      console.log("Login response:", response.data);
 
-      console.log(response.data.token);
-      // Check if the response contains the token
       if (response.data.token) {
-        // Store the JWT token in localStorage
-        localStorage.setItem("token", response.data.token);
-
-        setSuccess("Login successful!");
-        setError("");
-        setTimeout(() => navigate('/profile'), 1000); // Redirect after 1 second
+        localStorage.setItem("authToken", response.data.token);
       }
+
+      // Assuming a success message is returned from the backend
+      setSuccess(response.data.message || "Login successful!");
+      setError("");
+
+      // Redirect after successful login
+      setTimeout(() => navigate('/profile'), 1000); // Adjust path as needed
     } catch (err) {
       // Handle error
       setError(err.response?.data?.message || "Login failed");
@@ -35,26 +50,55 @@ const LoginSignupPage = () => {
     }
   };
 
-  
   return (
-    <div className="login-signup-page">
-      {/* <h1>{isLogin ? 'Login' : 'Signup'}</h1> */}
-      <h1>Login</h1>
-      <form onSubmit={handleLogin} className="login-form">
-        <div className="form-group">
-            <label htmlFor="email">Email:</label>
-            <input type="email" value={email} onChange={ (e) => setEmail(e.target.value)} placeholder="Enter your email" required />
+    <div className="login-container">
+      <div className="login-card">
+        <div className="form-section">
+          <h2>Welcome back to Fashion Fusion!</h2>
+          <form onSubmit={handleLogin}>
+            <div className="form-group">
+              <label htmlFor="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="major.tom@gmail.com"
+                value={formData.email}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="********"
+                value={formData.password}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <button
+              type="submit"
+              className="login-button"
+            >
+              Log In
+            </button>
+          </form>
+          {success && <p className="success-message">{success}</p>}
+          {error && <p className="error-message">{error}</p>}
         </div>
-        <div className="form-group">
-          <label htmlFor="password">Password:</label>
-          <input type="password" value={password} onChange={ (e) => setPassword(e.target.value)} placeholder="Enter your password" required /> 
-        </div>    
-        <button type="submit">Login</button>
-      {error && <div style={{ color: "red" }}>{error}</div>}
-      {success && <div style={{ color: "green" }}>{success}</div>}
-      </form>
+        <div className="illustration-section">
+          <img
+            src="../assets/Fashion_Fusion_Login.jpg"
+            alt=""
+          />
+        </div>
+      </div>
     </div>
   );
 };
 
-export default LoginSignupPage;
+export default LoginPage;

@@ -1,5 +1,6 @@
 import express from 'express';
 const router = express.Router();
+import UserModel from '../model/User';
 import PostModel from '../model/Post'; 
 import Comment from '../model/Comment';
 
@@ -38,6 +39,29 @@ router.get('/posts/:id', async (req,res) => {
     res.status(500).json({ message: "Error retrieving posts", error: err.message })
    }
 });
+
+//add post
+router.post("/addpost", async (req, res) => {
+  const { userId, content, imageUrl, tags, fashionCategory } = req.body; 
+  if (!userId || !content) {
+    return res.status(400).json({ message: "User ID and content are required" }); 
+  }
+  try {
+    // Create a new post
+    const newPost = new PostModel({ userId, content, imageUrl, tags, fashionCategory });
+    const savedPost = await newPost.save();
+    await UserModel.findByIdAndUpdate(userId, { $push: { posts: savedPost._id } });
+
+    res.status(201).json({ message: "Post created successfully", post: savedPost });
+  } catch (error) {
+    console.error("Error creating post:", error);
+    res.status(500).json({ 
+      message: "Error creating post", 
+      error: error.message || "Unknown error",
+    });
+  }
+});
+
 
 // POST route to add a new comment to a specific post
 router.post('/posts/:id/comments', async (req, res) => {

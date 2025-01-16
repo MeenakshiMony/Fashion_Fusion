@@ -121,6 +121,7 @@ h1 {
 }
 
 .comments-toggle {
+  width: 200px;
   background-color: transparent;
   border: none;
   color: #007bff;
@@ -174,6 +175,7 @@ h1 {
   background-color: #0056b3;
 }
 .like-button {
+  width:150px;
   background-color: transparent;
   border: 2px solid #ccc;
   padding: 8px 12px;

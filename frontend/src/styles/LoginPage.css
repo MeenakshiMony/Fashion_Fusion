@@ -1,21 +1,36 @@
-/* styles/LoginPage.css */
-
-.login-signup-page {
-  font-family: Arial, sans-serif;
-  max-width: 400px;
-  margin: 50px auto;
-  padding: 20px;
-  background: #fff;
+/* General Container */
+.login-container {
+  display: flex;
   justify-content: center;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  align-items: center;
+  height: 100vh;
+  /* background-color: #eaf4fc; Light blue background */
+  margin: 0;
 }
 
-.login-signup-page h1 {
-  text-align: center;
+/* Login Card */
+.login-card {
+  display: flex;
+  flex-direction: row; /* Image is on the right */
+  width: 800px;
+  max-width: 90%;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* Form Section */
+.form-section {
+  flex: 1;
+  padding: 40px;
+}
+
+.form-section h2 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #0099ff; /* Blue color */
   margin-bottom: 20px;
-  font-size: 24px;
-  color: #333;
 }
 
 .form-group {
@@ -24,56 +39,62 @@
 
 .form-group label {
   display: block;
+  font-size: 0.9rem;
+  color: #666666;
   margin-bottom: 5px;
-  font-weight: bold;
-  color: #333;
 }
 
 .form-group input {
   width: 100%;
   padding: 10px;
-  border: 1px solid #ccc;
+  font-size: 1rem;
+  border: 1px solid #cccccc;
   border-radius: 5px;
-  box-sizing: border-box;
-  background-color: #ffffff;
-  color: #333;
 }
 
-.error {
-  border-color: #ff0000;
+.form-group input:focus {
+  outline: none;
+  border-color: #0099ff;
+}
+
+.login-button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  background-color: #0099ff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.login-button:hover {
+  background-color: #007acc;
+}
+
+.success-message {
+  margin-top: 5px;
+  color: green;
 }
 
 .error-message {
-  color: #ff0000;
-  font-size: 0.875rem;
   margin-top: 5px;
+  color: red;
 }
 
-button[type="submit"] {
-  width: 100%;
-  padding: 10px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
+/* Illustration Section */
+.illustration-section {
+  flex: 1;
+  background-color: #002b55;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-button[type="submit"]:hover {
-  background-color: #0056b3;
-}
-
-.toggle-btn {
-  margin-top: 10px;
-  background-color: transparent;
-  border: none;
-  color: #007bff;
-  cursor: pointer;
-  font-size: 14px;
-  text-decoration: underline;
-}
-
-.toggle-btn:hover {
-  color: #007bff; 
+.illustration-section img {
+  max-width: 100%;
+  height: auto;
 }

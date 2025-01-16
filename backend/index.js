@@ -13,14 +13,16 @@ import userRoutes from './routes/auth';
 
 const app = express();
 const PORT = process.env.PORT;
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json({limit:'10mb'}));
+app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 
 
 //Use CORS middleware for all routes
 app.use(cors({
   origin: 'http://localhost:5173', // Allow requests only from this frontend URL
   credentials: true,  // If your frontend uses cookies or authentication tokens
+  methods: ["GET", "POST", "PUT", "DELETE"], 
+  allowedHeaders: ["Content-Type", "Authorization"], // Allowed headers
 }));
 
 // Use the routes

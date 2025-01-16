@@ -21,6 +21,14 @@
   text-align: center;
 }
 
+.preferences-form button{
+  background-color: #007bff;
+}
+
+.preferences-form button:hover{
+  background-color: #0056b3;
+}
+
 textarea {
   width: 100%;
   padding: 10px;

@@ -21,11 +21,11 @@ const CommunityPage = () => {
   }, []);
 
   const getLoggedInUserId = () => {
-    // Or use cookies
    try {
      const token = localStorage.getItem('token');
      const decodedToken = jwtDecode(token);
-     return decodedToken?.userId;
+     console.log(decodedToken)
+     console.log(decodedToken?.userId );
    } catch (error) {
      console.error('Invalid token:', error);
      return null;
@@ -152,7 +152,7 @@ const CommunityPage = () => {
                   <div className="comments-list">
                     {post.comments.map((comment) => (
                       <div key={comment._id} className="comment">
-                        <p><strong>{comment.userId.username}</strong>: {" "+comment.content}</p>
+                        <p><strong>{comment.userId ? comment.userId.username : 'Unknown User'}</strong>: {comment.content}</p>
                       </div>
                     ))}
                   </div>
