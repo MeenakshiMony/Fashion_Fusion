@@ -118,7 +118,7 @@ const VirtualTryOnPage = () => {
           canvasCtx.restore();
         });
       }
-
+      
       if (webcamRunning) {
         window.requestAnimationFrame(predictWebcam);
       }
@@ -141,24 +141,18 @@ const VirtualTryOnPage = () => {
   }, []);
 
   const handleModelSelection = (model) => {
-    setSelectedOutfit(model);
+    setSelectedOutfit(model.name);
     const loader = new GLTFLoader();
-    loader.load(selectedOutfit.url, 
-      function (gltf){
-        scene.add(gltf.scene);
+    loader.load(model.url, 
+      function (glb){
+        scene.add(glb);
       },undefined, function(error) {
         console.error(error);
       }
     )
-    setSelectedOutfit(model.name);  // Use the name of the model instead of the whole object
-    const modelUrl = `${model.url}`; // Construct the URL for the selected model
-
-    // Load the model and handle 3D visualization or AR integration
-    console.log(`Model selected: ${model.name}`);
-    console.log('Model URL:', modelUrl);
 
     // Example logic to fetch and display the model
-    fetch(modelUrl)
+    fetch(model.url)
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to load the model.");
@@ -174,34 +168,45 @@ const VirtualTryOnPage = () => {
  
 
   const initializeThreeJS = () => {
+    if (!WebGL.isWebGL2Available()) {
+      alert("WebGL is not supported by your browser.", WebGL.getWebGL2ErrorMessage());
+    }
+    
     const canvas = threeCanvasRef.current;
     if (!canvas) return;
   
+    // Create scene, camera, and renderer
     const scene = new THREE.Scene();
-    sceneRef.current = scene; // Store scene reference for later use
+    const camera = new THREE.PerspectiveCamera(75, canvas.width / canvas.height, 0.1, 1000);
+    
+    const renderer = new THREE.WebGLRenderer({ canvas }); // Attach to existing canvas
+    renderer.setSize(canvas.width, canvas.height);
+    
   
-    const camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 0.1, 1000);
-    camera.position.z = 5;
-    cameraRef.current = camera; // Store camera reference
-  
-    const renderer = new THREE.WebGLRenderer({ canvas });
-    renderer.setSize(canvas.clientWidth, canvas.clientHeight);
-    rendererRef.current = renderer; // Store renderer reference
-  
+    // Add a rotating cube (for testing)
     const geometry = new THREE.BoxGeometry(1, 1, 1);
     const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
     const cube = new THREE.Mesh(geometry, material);
     scene.add(cube);
   
+    camera.position.z = 5;
+  
+    sceneRef.current = scene;
+    cameraRef.current = camera;
+    rendererRef.current = renderer;
+    
+    // Animation loop
     const animate = () => {
       requestAnimationFrame(animate);
       cube.rotation.x += 0.01;
       cube.rotation.y += 0.01;
       renderer.render(scene, camera);
     };
-    
-    animate(); // Start animation loop
+  
+    animate();
+
   };
+  
   
   const modelList = useMemo(() => (
     models.map((model, index) => (
@@ -224,7 +229,7 @@ const VirtualTryOnPage = () => {
         <div className="video-canvas-container">
           <video id="webcam" autoPlay playsInline ref={videoRef} ></video>
           <canvas className="output_canvas" id="output_canvas" ref={canvasRef} width="1280" height="720" style={{ border: "1px solid black" }} ></canvas>
-          <canvas className="three_canvas" id="three_canvas" ref={threeCanvasRef} width="1280" height="720" style={{ border: "1px solid black" }} />
+          <canvas id="three_canvas" ref={threeCanvasRef} width="1280" height="720" style={{ border: "1px solid black" }} ></canvas>
         </div>
       </section>
         
