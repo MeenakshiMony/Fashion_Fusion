@@ -1,0 +1,60 @@
+/* Root variables for colors */
+:root {
+    --color-primary: #003366;
+    --color-secondary: #3498db;
+    --color-accent: #d4af37;
+    --color-text: #333333;
+    --color-background: #e5e5e5;
+  }
+  
+  /* Base styles */
+  body {
+    background-color: var(--color-background);
+    color: var(--color-text);
+    margin: 0;
+    font-family: Arial, sans-serif; /* Add a default font-family */
+  }
+  
+  /* Components (e.g., buttons, cards, etc.) */
+  .button-primary {
+    background-color: var(--color-primary);
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .button-primary:hover {
+    background-color: var(--color-secondary);
+  }
+  
+  /* Utilities (spacing, flexbox, etc.) */
+  .flex {
+    display: flex;
+  }
+  
+  .justify-center {
+    justify-content: center;
+  }
+  
+  .items-center {
+    align-items: center;
+  }
+  
+  .bg-primary {
+    background-color: var(--color-primary);
+  }
+  
+  .text-accent {
+    color: var(--color-accent);
+  }
+  
+  /* Additional styles for layout or typography */
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+  }
+  

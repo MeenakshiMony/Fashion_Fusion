@@ -1,204 +1,78 @@
-.community {
+.community-page-container {
+  max-width: 1200px;
+  margin: 0 auto;
   padding: 20px;
-  background-color: #f8f9fa;
+}
+
+.community-page-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 32px;
+}
+
+.community-posts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 32px;
+}
+
+.community-card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.community-card-header {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+}
+
+.community-avatar-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.community-username {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.community-card-content {
+  padding: 16px;
+}
+
+.community-post-content {
+  margin-bottom: 16px;
+  font-size: 1rem;
   color: #333;
 }
 
-.comment-section .comment-button {
-  background: #007bff; 
-  color: #fff;
-}
-
-h1 {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.social-feed {
-  max-width: 700px;
-  margin: 0 auto;
-}
-
-.post-card {
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
-  overflow: hidden;
-  transition: transform 0.2s ease-in-out;
-}
-
-.post-card:hover {
-  transform: scale(1.02);
-}
-
-.post-header {
-  padding: 10px;
-  background: #007bff;
-  color: #fff;
-  font-weight: bold;
-}
-
-.post-image {
+.community-post-image {
   width: 100%;
-  height: auto;
-  display: block;
-}
-
-.post-content {
-  padding: 15px;
-  font-size: 16px;
-  line-height: 1.5;
-}
-
-.post-interactions {
-  padding: 10px 15px;
-  font-size: 14px;
-  color: #6c757d;
-}
-
-.comment-section {
-  padding: 15px;
-  display: flex;
-  align-items: center;
-}
-
-.comment-input {
-  flex: 1;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  margin-right: 10px;
-  background-color: #fff;
-  color:#333;
-}
-
-.comment-button {
-  padding: 8px 15px; /* Reduced padding to make the button smaller */
-  border: none;
-  border-radius: 4px;
-  background: #007bff;
-  color: #fff;
-  cursor: pointer;
-  transition: background 0.2s ease;
-  font-size: 14px; /* Optionally reduce font size for a smaller button */
-  width: auto; /* Ensures button doesn’t take too much space */
-}
-
-.comment-button:hover {
-  background: #0056b3;
-}
-.community {
-  padding: 20px;
-  font-family: Arial, sans-serif;
-}
-
-.post-card {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.post-header {
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
-.post-image {
-  width: 100%;
-  height: auto;
-  margin: 10px 0;
+  height: 200px;
+  object-fit: cover;
   border-radius: 8px;
 }
 
-.post-interactions {
+.community-card-footer {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
+  padding: 16px;
+  background-color: #f8f8f8;
 }
 
-.comments-toggle {
-  width: 200px;
+.community-post-button {
   background-color: transparent;
   border: none;
+  font-size: 1rem;
   color: #007bff;
   cursor: pointer;
-  font-size: 14px;
-}
-
-.comments-toggle:hover {
-  text-decoration: underline;
-}
-
-.comments-section {
-  margin-top: 10px;
-  padding: 10px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-}
-
-.comment {
-  font-size: 14px;
-  margin-bottom: 5px;
-}
-
-.comment p{
-  text-align: left;
-}
-
-.comment-input-section {
-  display: flex;
-  margin-top: 10px;
-}
-
-.comment-input {
-  flex-grow: 1;
   padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
 }
 
-.comment-button {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  margin-left: 5px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.comment-button:hover {
-  background-color: #0056b3;
-}
-.like-button {
-  width:150px;
-  background-color: transparent;
-  border: 2px solid #ccc;
-  padding: 8px 12px;
-  font-size: 16px;
-  color: #333;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  border-radius: 5px;
-  transition: all 0.3s ease;
-}
-
-.like-button:hover {
-  background-color: #f0f0f0;
-  border-color: #888;
-}
-
-.star-icon {
-  font-size: 20px;
-  color: #ccc;
-}
-
-.like-button.liked .star-icon {
-  color: gold;  /* If you want to change the color when liked */
+.community-post-button:hover {
+  color: #0056b3;
 }

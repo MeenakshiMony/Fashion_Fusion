@@ -29,7 +29,7 @@ function App() {
           <Route path="/community" element={<CommunityPage />} />
 
           {/* Use PrivateRoute for protected routes */}
-          <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
+          <Route path="/profile" element={<ProfilePage />} />
 
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />

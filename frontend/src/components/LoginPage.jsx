@@ -40,7 +40,7 @@ const LoginPage = () => {
       // Assuming a success message is returned from the backend
       setSuccess(response.data.message || "Login successful!");
       setError("");
-
+    
       // Redirect after successful login
       setTimeout(() => navigate('/profile'), 1000); // Adjust path as needed
     } catch (err) {

@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import '../styles/TryOnPage.css';
 import { PoseLandmarker, FilesetResolver, DrawingUtils } from "https://cdn.skypack.dev/@mediapipe/tasks-vision@0.10.0";
 import "@google/model-viewer";
 import * as THREE from 'three'; 
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import WebGL from 'three/addons/capabilities/WebGL.js';
 
 const VirtualTryOnPage = () => {
   const [isPanelOpen, setPanelOpen] = useState(true);
@@ -15,6 +15,7 @@ const VirtualTryOnPage = () => {
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+  const threeCanvasRef = useRef(null);
   const drawingUtilsRef = useRef(null);
   const [landmarks, setLandmarks] = useState([]);
   let lastVideoTime = -1;
@@ -22,20 +23,18 @@ const VirtualTryOnPage = () => {
   // Track the webcam stream
   const webcamStreamRef = useRef(null);
 
-  let model;
-
-  // Create a Three.js scene
-  const [scene, setScene] = useState(null);
-  const [camera, setCamera] = useState(null);
-  const [renderer, setRenderer] = useState(null);
-  const threeCanvasRef = useRef(null);
+  const sceneRef = useRef(null);
+  const rendererRef = useRef(null);
+  const cameraRef = useRef(null);
+ 
+  
 
 
   // Initialize PoseLandmarker
   const createPoseLandmarker = async () => {
     try {
       const vision = await FilesetResolver.forVisionTasks(
-        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm"
+        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
       );
       const poseLandmarkerInstance = await PoseLandmarker.createFromOptions(vision, {
         baseOptions: {
@@ -44,8 +43,13 @@ const VirtualTryOnPage = () => {
           delegate: "GPU",
         },
         runningMode: "VIDEO",
+        num_poses:1,
+        min_pose_detection_confidence:0.75,
+        min_pose_presence_confidence:0.75,
+        min_tracking_confidence:0.75,
       });
       setPoseLandmarker(poseLandmarkerInstance);
+      console.log("Pose Landmarker loaded successfully.");
     } catch (error) {
       console.error('Error creating PoseLandmarker:', error);
     }
@@ -58,16 +62,31 @@ const VirtualTryOnPage = () => {
       return;
     }
 
-    setWebcamRunning((prevState) => !prevState);
+    if (webcamRunning === true) {
+      setWebcamRunning(false);
+      if (webcamStreamRef.current) {
+        webcamStreamRef.current.getTracks().forEach(track => track.stop());
+      }
+      
+    } else {
+      setWebcamRunning(true);
 
-    const constraints = { video: true };
+    }
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      const videoStream = await navigator.mediaDevices.getUserMedia({ video: true }); // Request webcam access
       if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        webcamStreamRef.current = stream; // Store the webcam stream
-        videoRef.current.addEventListener('loadeddata', predictWebcam);
+        videoRef.current.srcObject = videoStream;
+        webcamStreamRef.current = videoStream; // Store the webcam stream
+
+      let playPromise = videoRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => {}).catch(error => {
+          console.error('Error starting video:', error);
+        });
+      }
+        
+      videoRef.current.addEventListener('loadeddata', predictWebcam);
       }
     } catch (error) {
       alert('Error accessing webcam:', error);
@@ -78,25 +97,24 @@ const VirtualTryOnPage = () => {
   const predictWebcam = () => {
     const video = videoRef.current;
     const canvasElement = canvasRef.current;
-    const canvasCtx = canvasElement.getContext('2d');
+    const canvasCtx = canvasElement.getContext('2d',{willReadFrequently: true});
+    const drawingUtils = new DrawingUtils(canvasCtx);
 
     if (canvasCtx && poseLandmarker) {
-      const startTimeMs = performance.now();
+      let startTimeMs = performance.now();
       if (lastVideoTime !== video.currentTime) {
         lastVideoTime = video.currentTime;
         poseLandmarker.detectForVideo(video, startTimeMs, (result) => {
           canvasCtx.save();
           canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
-          const drawingUtils = new DrawingUtils(canvasCtx);
-          drawingUtilsRef.current = drawingUtils;
-
-          result.landmarks.forEach((landmark) => {
+          setLandmarks(result.landmarks);
+          for(const landmark of result.landmarks){
             drawingUtils.drawLandmarks(landmark, {
-              radius: (data) => DrawingUtils.lerp(data.from.z, -0.15, 0.1, 5, 1),
+              radius: (data) => DrawingUtils.lerp(data.from.z, -0.15, 0.1, 5, 1)
             });
-            drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS);
-          });
+          drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS);
+          }
           canvasCtx.restore();
         });
       }
@@ -107,41 +125,8 @@ const VirtualTryOnPage = () => {
     }
   };
 
-  // Stop webcam when navigating away or stopping
-  useEffect(() => {
-    // Cleanup webcam on component unmount or when camera is stopped
-    return () => {
-      if (webcamStreamRef.current) {
-        const tracks = webcamStreamRef.current.getTracks();
-        tracks.forEach(track => track.stop());
-        webcamStreamRef.current = null;
-      }
-    };
-  }, []);
-
-  // Access webcam for AR
-  useEffect(() => {
-    const video = document.getElementById('webcam');
-    navigator.mediaDevices.getUserMedia({ video: true })
-      .then((stream) => {
-        video.srcObject = stream;
-        videoRef.current = video; // Store video reference
-        var playPromise = video.play();
-
-        if (playPromise !== undefined) {
-          playPromise.then(_ => { })
-            .catch(error => {
-              console.error('Error starting video:', error);
-            });
-        }
-      })
-      .catch((error) => {
-        console.error('Error accessing webcam:', error);
-      });
-  }, []);
 
   useEffect(() => {
-    // Fetch models from backend
     fetch('http://localhost:8080/models')
       .then((response) => response.json())
       .then((data) => {
@@ -152,16 +137,19 @@ const VirtualTryOnPage = () => {
       });
 
     createPoseLandmarker(); // Initialize PoseLandmarker
-
-    // Cleanup PoseLandmarker on component unmount
-    return () => {
-      if (poseLandmarker) {
-        poseLandmarker.close();
-      }
-    };
+    initializeThreeJS();
   }, []);
 
   const handleModelSelection = (model) => {
+    setSelectedOutfit(model);
+    const loader = new GLTFLoader();
+    loader.load(selectedOutfit.url, 
+      function (gltf){
+        scene.add(gltf.scene);
+      },undefined, function(error) {
+        console.error(error);
+      }
+    )
     setSelectedOutfit(model.name);  // Use the name of the model instead of the whole object
     const modelUrl = `${model.url}`; // Construct the URL for the selected model
 
@@ -183,71 +171,46 @@ const VirtualTryOnPage = () => {
       });
   };
 
-  const animate = () => {
-    requestAnimationFrame(animate);
-
-    // Rotate the model
-    if (model) {
-      model.rotation.y += 0.01;
-    }
-
-    renderer.render(scene, camera);
-  };
+ 
 
   const initializeThreeJS = () => {
     const canvas = threeCanvasRef.current;
+    if (!canvas) return;
   
-    // Set up the scene
-    const threeScene = new THREE.Scene();
-    setScene(threeScene);
+    const scene = new THREE.Scene();
+    sceneRef.current = scene; // Store scene reference for later use
   
-    // Set up the camera
-    const threeCamera = new THREE.PerspectiveCamera(
-      75,
-      canvas.clientWidth / canvas.clientHeight,
-      0.1,
-      1000
-    );
-    threeCamera.position.z = 5;
-    setCamera(threeCamera);
+    const camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 0.1, 1000);
+    camera.position.z = 5;
+    cameraRef.current = camera; // Store camera reference
   
-    // Set up the renderer
-    const threeRenderer = new THREE.WebGLRenderer({ canvas, alpha: true });
-    threeRenderer.setSize(canvas.clientWidth, canvas.clientHeight);
-    setRenderer(threeRenderer);
+    const renderer = new THREE.WebGLRenderer({ canvas });
+    renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+    rendererRef.current = renderer; // Store renderer reference
   
-    // Add light to the scene
-    const light = new THREE.AmbientLight(0xffffff, 1);
-    threeScene.add(light);
-  };
-
-  const addModelToScene = (landmark) => {
-    if (scene && camera && renderer) {
-      const loader = new THREE.GLTFLoader(); // Load 3D model
-      loader.load(
-        'path/to/your/model.gltf',
-        (gltf) => {
-          const model = gltf.scene;
+    const geometry = new THREE.BoxGeometry(1, 1, 1);
+    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    const cube = new THREE.Mesh(geometry, material);
+    scene.add(cube);
   
-          // Scale and position the model based on the landmark
-          model.scale.set(0.1, 0.1, 0.1); // Adjust scale
-          model.position.set(landmark.x * 5 - 2.5, -(landmark.y * 5 - 2.5), 0); // Adjust position
-          scene.add(model);
-  
-          // Start animation loop
-          const animate = () => {
-            model.rotation.y += 0.01; // Rotate the model
-            renderer.render(scene, camera);
-            requestAnimationFrame(animate);
-          };
-          animate();
-        },
-        undefined,
-        (error) => console.error('Error loading model:', error)
-      );
-    }
+    const animate = () => {
+      requestAnimationFrame(animate);
+      cube.rotation.x += 0.01;
+      cube.rotation.y += 0.01;
+      renderer.render(scene, camera);
+    };
+    
+    animate(); // Start animation loop
   };
   
+  const modelList = useMemo(() => (
+    models.map((model, index) => (
+      <li key={index} className="model-item" onClick={() => handleModelSelection(model)}>
+        <model-viewer src={model.url} alt={model.name} auto-rotate camera-controls style={{ width: "200px", height: "200px" }} ></model-viewer>
+        <p>{model.name}</p>
+      </li>
+    ))
+  ))
 
   return (
     <div className="virtual-try-on">
@@ -259,36 +222,9 @@ const VirtualTryOnPage = () => {
         </div>
 
         <div className="video-canvas-container">
-          <video
-            id="webcam"
-            autoPlay
-            playsInline
-            ref={videoRef}
-          ></video>
-          <canvas
-            className="output_canvas"
-            id="output_canvas"
-            ref={canvasRef}
-            width="1280"
-            height="720"
-            style={{ border: "1px solid black" }}
-          ></canvas>
-
-          {selectedOutfit && landmarks.length > 0 && (
-            <img
-              src={selectedOutfit}
-              alt="Outfit"
-              style={{
-                position: 'absolute',
-                top: `${landmarks[0].y * 100}%`,
-                left: `${landmarks[0].x * 100}%`,
-                width: '150px',
-                height: '200px',
-                objectFit: 'cover',
-                transform: 'translate(-50%, -50%)',
-              }}
-            />
-          )}
+          <video id="webcam" autoPlay playsInline ref={videoRef} ></video>
+          <canvas className="output_canvas" id="output_canvas" ref={canvasRef} width="1280" height="720" style={{ border: "1px solid black" }} ></canvas>
+          <canvas className="three_canvas" id="three_canvas" ref={threeCanvasRef} width="1280" height="720" style={{ border: "1px solid black" }} />
         </div>
       </section>
         
@@ -299,34 +235,13 @@ const VirtualTryOnPage = () => {
           <div className="outfit-grid">
             <div className="outfit-card">
               <h2>Select a Model</h2>
-              {selectedOutfit && <p>You selected: {selectedOutfit}</p>}
-              <ul className="model-list">
-                {models.map((model, index) => (
-                  <li
-                    key={index}
-                    className="model-item"
-                    onClick={() => setSelectedOutfit(model.name)} // Set selected model
-                  >
-                    <model-viewer
-                      src={model.url}
-                      alt={model.name}
-                      auto-rotate
-                      camera-controls
-                      style={{ width: "200px", height: "200px" }}
-                    ></model-viewer>
-                    <p>{model.name}</p>
-                  </li>
-                ))}
-              </ul>
+              {selectedOutfit && <p>You selected:{selectedOutfit.name}</p>}
+              <ul className="model-list">{modelList}</ul>
             </div>
           </div>
 
           <div className="upload-container">
-            <input
-              type="file"
-              id="upload-avatar"
-              aria-label="Upload your avatar image"
-            />
+            <input type="file" id="upload-avatar" aria-label="Upload your avatar image"/>
             <label htmlFor="upload-avatar" className="upload-button">
               Upload Outfit
             </label>

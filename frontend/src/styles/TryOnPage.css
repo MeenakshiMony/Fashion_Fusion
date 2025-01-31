@@ -164,3 +164,25 @@ a-scene {
   pointer-events: none;
   z-index: 2; /* Ensure it appears above the webcam */
 }
+
+.three-canvas{
+  z-index: 5;
+}
+
+.ar a-scene {
+  width: 75%;
+  height: 75%;
+  margin-top: 20%;
+}
+
+.webcam{
+  z-index: 5;
+}
+
+.output-canvas{
+  z-index: 10;
+}
+
+.three_canvas{
+  z-index: 15;
+}
