@@ -43,27 +43,29 @@ app.use('/avatars', express.static('public/avatars'));
 
 // Serve static files from the 'models' directory
 const modelsDirectory = path.join(__dirname, 'models');
+const gltfDirectory = path.join(__dirname, 'gltf'); // Folder for .gltf files
 app.use('/models', express.static(modelsDirectory));
 
-// API endpoint to get the list of all models with their URLs
 app.get('/models', (req, res) => {
-  fs.readdir(modelsDirectory, (err, files) => {
-    if (err) {
-      return res.status(500).json({ error: 'Failed to read models directory' });
-    }
+  try {
+    // Function to get model files from a directory
+    const getModelFiles = (directory, extensions) => {
+      return fs.existsSync(directory) ? fs.readdirSync(directory)
+        .filter(file => extensions.some(ext => file.endsWith(ext)))
+        .map(file => ({
+          name: file,
+          url: `${req.protocol}://${req.get('host')}/${path.basename(directory)}/${file}`
+        })) : [];
+    };
 
-    // Filter model files (supports .glb and .bin extensions)
-    const modelFiles = files.filter(file => file.endsWith('.glb') || file.endsWith('.bin'));
+    // Fetch model files from both directories
+    const modelFiles = [
+      ...getModelFiles(modelsDirectory, ['.glb', '.bin', '.vrm']),
+      ...getModelFiles(gltfDirectory, ['.gltf'])
+    ];
 
-    // Generate a list of URLs for the models
-    const modelUrls = modelFiles.map(file => {
-      return {
-        name: file,
-        url: `${req.protocol}://${req.get('host')}/models/${file}` // Generates full URL to the model
-      };
-    });
-
-    res.json(modelUrls); // Return the list of model URLs
-  });
+    res.json(modelFiles); // Send the merged list of models
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to load models' });
+  }
 });
- 
