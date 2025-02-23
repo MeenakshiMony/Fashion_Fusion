@@ -51,6 +51,7 @@ const VirtualTryOnPage = () => {
     }
   }, []);
 
+  
   // Start webcam and predictions
   const enableCam = useCallback(async () => {
     if (!poseLandmarker) {
@@ -65,26 +66,26 @@ const VirtualTryOnPage = () => {
       }
     } else {
       setWebcamRunning(true);
-    }
-
-    try {
-      const videoStream = await navigator.mediaDevices.getUserMedia({ video: true }); // Request webcam access
-      if (videoRef.current) {
-        videoRef.current.srcObject = videoStream;
-        webcamStreamRef.current = videoStream; // Store the webcam stream
-
-        let playPromise = videoRef.current.play();
-        if (playPromise !== undefined) {
-          playPromise.then(() => {}).catch(error => {
-            console.error('Error starting video:', error);
-          });
+      try {
+        const videoStream = await navigator.mediaDevices.getUserMedia({ video: true }); // Request webcam and audio access
+        if (videoRef.current) {
+          videoRef.current.srcObject = videoStream;
+          webcamStreamRef.current = videoStream; // Store the webcam stream
+  
+          let playPromise = videoRef.current.play();
+          if (playPromise !== undefined) {
+            playPromise.then(() => {}).catch(error => {
+              console.error('Error starting video:', error);
+            });
+          }
+  
+          videoRef.current.addEventListener('loadeddata', predictWebcam);
         }
-
-        videoRef.current.addEventListener('loadeddata', predictWebcam);
+      } catch (error) {
+        alert(`Error accessing webcam: ${error.message}. Please ensure your browser has permission to access the webcam and try again.`);
       }
-    } catch (error) {
-      alert('Error accessing webcam:', error);
     }
+    
   }, [poseLandmarker, webcamRunning]);
 
   // Continuously detect landmarks in the video stream
@@ -103,6 +104,7 @@ const VirtualTryOnPage = () => {
           canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
           setLandmarks(result.landmarks);
+          
           for (const landmark of result.landmarks) {
             drawingUtils.drawLandmarks(landmark, {
               radius: (data) => DrawingUtils.lerp(data.from.z, -0.15, 0.1, 5, 1)
@@ -110,7 +112,6 @@ const VirtualTryOnPage = () => {
             drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS);
           }
           canvasCtx.restore();
-          throttledUpdateModelPosition();
         });
       }
 
@@ -120,51 +121,26 @@ const VirtualTryOnPage = () => {
     }
   }, [poseLandmarker, webcamRunning, lastVideoTime]);
 
-  // Throttle the updateModelPosition function
-  const throttledUpdateModelPosition = useCallback(throttle(() => {
-    if (!selectedOutfitRef.current || landmarks.length === 0) return;
-
-    const nose = getWorldPosition(0); // Nose (center of the body)
-    const leftShoulder = getWorldPosition(11);
-    const rightShoulder = getWorldPosition(12);
-    const leftHip = getWorldPosition(23);
-    const rightHip = getWorldPosition(24);
-
-    if (!nose || !leftShoulder || !rightShoulder || !leftHip || !rightHip) return;
-
-    // Calculate center of shoulders (chest region)
-    const shoulderCenter = new THREE.Vector3().lerpVectors(leftShoulder, rightShoulder, 0.5);
-
-    // Adjust model position
-    selectedOutfitRef.current.position.copy(shoulderCenter);
-    selectedOutfitRef.current.position.y -= 50; // Move down slightly to fit torso
-
-    // Adjust rotation based on shoulder alignment
-    const shoulderDirection = new THREE.Vector3().subVectors(rightShoulder, leftShoulder);
-    const angle = Math.atan2(shoulderDirection.y, shoulderDirection.x);
-    selectedOutfitRef.current.rotation.y = -angle;
-
-    // Calculate body center (midpoint between shoulders and hips)
-    const bodyCenterX = (leftShoulder.x + rightShoulder.x + leftHip.x + rightHip.x) / 4;
-    const bodyCenterY = (leftShoulder.y + rightShoulder.y + leftHip.y + rightHip.y) / 4;
-
-    // Scale the outfit based on shoulder width
-    const shoulderWidth = Math.abs(leftShoulder.x - rightShoulder.x);
-    selectedOutfitRef.current.scale.set(shoulderWidth * 3, shoulderWidth * 3, shoulderWidth * 3);
-
-    // Position the outfit
-    selectedOutfitRef.current.position.set(bodyCenterX * 3 - 1, -bodyCenterY * 3, 0);
-
-    // Optionally, rotate the outfit to match the user's orientation
-    const bodyAngle = Math.atan2(rightShoulder.y - leftShoulder.y, rightShoulder.x - leftShoulder.x);
-    selectedOutfitRef.current.rotation.z = bodyAngle;
-  }, 100), [landmarks]);
+  
 
   useEffect(() => {
     fetch('http://localhost:8080/models')
       .then((response) => response.json())
       .then((data) => {
-        setModels(data); // Store the list of models in state
+        // Separate models.json from other models
+        const modelsJson = data.find((model) => model.name === "models.json");
+        const otherModels = data.filter((model) => model.name !== "models.json");
+
+        // Fetch and store models.json in localStorage
+        if (modelsJson) {
+          fetch(modelsJson.url)
+            .then((res) => res.json())
+            .then((jsonData) => localStorage.setItem("modelInfo", JSON.stringify(jsonData)))
+            .catch((err) => console.error("Error fetching models.json:", err));
+        }
+
+        // Store remaining models in state
+        setModels(otherModels);
       })
       .catch((error) => {
         console.error('Error fetching models:', error);
@@ -174,66 +150,9 @@ const VirtualTryOnPage = () => {
     initializeThreeJS();
   }, [createPoseLandmarker]);
 
-  const getWorldPosition = useCallback((landmarkIndex) => {
-    if (!landmarks || landmarks.length === 0) return null;
-
-    // Extract landmark position (Normalized between 0-1)
-    const { x, y, z } = landmarks[landmarkIndex];
-
-    // Convert normalized coordinates to Three.js world space
-    const screenX = (x - 0.5) * window.innerWidth;
-    const screenY = (0.5 - y) * window.innerHeight;
-    const screenZ = z * 100; // Scale depth for visibility
-
-    return new THREE.Vector3(screenX, screenY, screenZ);
-  }, [landmarks]);
-
-  // Update handleModelSelection to store the loaded outfit model in a ref
-  const handleModelSelection = useCallback((model) => {
-    setSelectedOutfit(model.name);
-    const loader = new GLTFLoader();
-    loader.load(model.url,
-      function (glb) {
-        const outfit = glb.scene;
-        const keyPoints = {};
-
-        // Traverse the model to find key points
-        outfit.traverse((child) => {
-          if (child.isMesh) {
-            // Example heuristic: Find the highest point for the head
-            if (!keyPoints.head || child.position.y > keyPoints.head.position.y) {
-              keyPoints.head = child;
-            }
-            // Example heuristic: Find the lowest point for the feet
-            if (!keyPoints.feet || child.position.y < keyPoints.feet.position.y) {
-              keyPoints.feet = child;
-            }
-            // Example heuristic: Find the widest points for shoulders
-            if (!keyPoints.leftShoulder || child.position.x < keyPoints.leftShoulder.position.x) {
-              keyPoints.leftShoulder = child;
-            }
-            if (!keyPoints.rightShoulder || child.position.x > keyPoints.rightShoulder.position.x) {
-              keyPoints.rightShoulder = child;
-            }
-          }
-        });
-
-        console.log("Keypoints: ", keyPoints);
-        // Store the outfit and key points in the ref
-        selectedOutfitRef.current = { outfit, keyPoints };
-
-        outfit.scale.set(1, 1, 1);
-        sceneRef.current.add(outfit);
-
-      }, undefined, function (error) {
-        console.error(error);
-      }
-    );
-  }, []);
-
   const initializeThreeJS = useCallback(() => {
     if (!WebGL.isWebGL2Available()) {
-      alert("WebGL is not supported by your browser.", WebGL.getWebGL2ErrorMessage());
+      alert("WebGL is not supported by your browser.");
     }
 
     const canvas = threeCanvasRef.current;
@@ -265,13 +184,12 @@ const VirtualTryOnPage = () => {
     directionalLight.position.set(5, 10, 5);
     scene.add(directionalLight);
 
-    // Handle resizing dynamically
     window.addEventListener("resize", () => {
-      const newWidth = window.innerWidth;
-      const newHeight = window.innerHeight;
-      camera.aspect = newWidth / newHeight;
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      camera.aspect = width / height;
       camera.updateProjectionMatrix();
-      renderer.setSize(newWidth, newHeight);
+      renderer.setSize(width, height);
     });
 
     // Animate loop

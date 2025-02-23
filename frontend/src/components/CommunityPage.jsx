@@ -14,6 +14,7 @@ const CommunityPage = () => {
     axios.get('/posts')
       .then(response => setPosts(response.data))
       .catch(err => {
+        console.error('Error fetching posts:', err);
         setError(`Error fetching posts: ${err.message || 'Unknown error'}`);
         setPosts([]);
       })
@@ -22,10 +23,9 @@ const CommunityPage = () => {
 
   const getLoggedInUserId = () => {
    try {
-     const token = localStorage.getItem('token');
+     const token = localStorage.getItem('authToken');
      const decodedToken = jwtDecode(token);
-     console.log(decodedToken)
-     console.log(decodedToken?.userId );
+     return decodedToken?.userId;
    } catch (error) {
      console.error('Invalid token:', error);
      return null;
@@ -42,6 +42,8 @@ const CommunityPage = () => {
   
     // Check if comments have already been loaded
     const selectedPost = posts.find((post) => post._id === postId);
+
+    if(!selectedPost) return;
     if (!selectedPost.commentsLoaded && !selectedPost.showComments) {
       try {
         const response = await axios.get(`/comments/${postId}`);
@@ -65,9 +67,10 @@ const CommunityPage = () => {
   };  
 
   const handleAddComment = async (postId, event) => {
-    const inputElement = event.target.previousElementSibling; // Input element
-    const newCommentContent = inputElement.value.trim();
+    const inputElement = event.target.previousElementSibling; 
+    if(!inputElement) return;
 
+    const newCommentContent = inputElement.value.trim();
     if (!newCommentContent) return;
 
     try {
@@ -83,7 +86,9 @@ const CommunityPage = () => {
 
       // Reset the input field after submission
       inputElement.value = '';
+      setError('');
       const updatedPost = response.data; 
+      
       console.log(`post after comment`,updatedPost);
       setPosts((prevPosts) =>
         prevPosts.map((post) =>
@@ -107,7 +112,7 @@ const CommunityPage = () => {
         { userId: currentUserId }, 
         { headers: { 'Content-Type': 'application/json' } }
       );
-      const updatedPost = response.data; // Backend returns the updated post
+      const updatedPost = response.data; 
       setPosts((prevPosts) =>
         prevPosts.map((post) =>
           post._id === postId ? { ...post, likes: updatedPost.likes } : post
@@ -150,15 +155,21 @@ const CommunityPage = () => {
                 <div className="comments-section">
                   <h3>Comments</h3>
                   <div className="comments-list">
-                    {post.comments.map((comment) => (
-                      <div key={comment._id} className="comment">
-                        <p><strong>{comment.userId ? comment.userId.username : 'Unknown User'}</strong>: {comment.content}</p>
-                      </div>
-                    ))}
+                    {post.comments && post.comments.length > 0 ? (
+                      post.comments.map((comment) => (
+                        <div key={comment._id} className="comment">
+                          <p>
+                            <strong>{comment.userId ? comment.userId.username : 'Unknown User'}</strong>: {comment.content}
+                          </p>
+                        </div>
+                      ))
+                    ) : (
+                      <p>No comments yet.</p>
+                    )}
                   </div>
                   <div className="comment-input-section">
                     <input
-                      type="text"                      
+                      type="text"
                       placeholder="Add a comment..."
                       className="comment-input"
                     />

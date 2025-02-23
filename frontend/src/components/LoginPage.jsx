@@ -8,8 +8,10 @@ const LoginPage = () => {
     email: "",
     password: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -22,14 +24,13 @@ const LoginPage = () => {
     }));
   };
 
-  // Handle form submission (Login)
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    const { email, password } = formData;
+    const {email, password} = formData;
 
+    setLoading(true);
     try {
-      // Make the login request to the backend
       const response = await axios.post("/login", { email, password });
       console.log("Login response:", response.data);
 
@@ -37,16 +38,19 @@ const LoginPage = () => {
         localStorage.setItem("authToken", response.data.token);
       }
 
-      // Assuming a success message is returned from the backend
       setSuccess(response.data.message || "Login successful!");
       setError("");
-    
-      // Redirect after successful login
-      setTimeout(() => navigate('/profile'), 1000); // Adjust path as needed
+
+      setTimeout(() => navigate('/profile'), 1000);
     } catch (err) {
-      // Handle error
-      setError(err.response?.data?.message || "Login failed");
-      setSuccess(""); // Clear any previous success messages
+      setError(
+        err.response?.data?.message ||
+        err.message ||
+        "An error occurred. Please try again."
+      );
+      setSuccess("");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -62,29 +66,41 @@ const LoginPage = () => {
                 type="email"
                 id="email"
                 name="email"
-                placeholder="major.tom@gmail.com"
+                placeholder="Enter your email address"
                 value={formData.email}
                 onChange={handleChange}
                 required
+                aria-label="Email"
               />
             </div>
             <div className="form-group">
               <label htmlFor="password">Password</label>
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 id="password"
                 name="password"
-                placeholder="********"
+                placeholder="Enter your password"
                 value={formData.password}
                 onChange={handleChange}
                 required
+                aria-label="Password"
               />
+            </div>
+            <div className="form-group checkbox-group">
+              <input
+                type="checkbox"
+                id="showPassword"
+                checked={showPassword}
+                onChange={() => setShowPassword(!showPassword)}
+              />
+              <label htmlFor="showPassword">Show Password</label>
             </div>
             <button
               type="submit"
               className="login-button"
+              disabled={loading}
             >
-              Log In
+              {loading ? "Logging in..." : "Log In"}
             </button>
           </form>
           {success && <p className="success-message">{success}</p>}
@@ -92,8 +108,8 @@ const LoginPage = () => {
         </div>
         <div className="illustration-section">
           <img
-            src="../assets/Fashion_Fusion_Login.jpg"
-            alt=""
+            src="https://images.unsplash.com/photo-1495385794356-15371f348c31?q=80&w=970&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            alt="Fashion Fusion Login Illustration"
           />
         </div>
       </div>

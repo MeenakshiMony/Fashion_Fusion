@@ -5,61 +5,73 @@ import DropdownButton from 'react-bootstrap/DropdownButton';
 import "../styles/AddPost.css";
 
 const AddPost = ({ userId, onClose }) => {
-  const [content, setContent] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
-  const [tags, setTags] = useState("");
-  const [fashionCategory, setFashionCategory] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    content: "",
+    imageUrl: "",
+    tags: "",
+    fashionCategory: "",
+  });
+  const [state, setState] = useState({
+    error: "",
+    success: "",
+    dropdownOpen: false,
+  });
 
   // Handle file upload
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        setState((prev) => ({ ...prev, error: "File size must be less than 5MB" }));
+        return;
+      }
+
+      // Validate file type (only images)
+      if (!file.type.startsWith("image/")) {
+        setState((prev) => ({ ...prev, error: "Only image files are allowed" }));
+        return;
+      }
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImageUrl(reader.result);
+        setFormData((prev) => ({ ...prev, imageUrl: reader.result }));
       };
       reader.readAsDataURL(file);
     }
   };
 
   const handleToggle = (isOpen) => {
-    setDropdownOpen(isOpen);
- };  
+    setState((prev) => ({ ...prev, dropdownOpen: isOpen }));
+  };
 
   const handleFashionCategorySelect = (category) => {
-    setFashionCategory(category);
-    setDropdownOpen(false);
+    setFormData((prev) => ({ ...prev, fashionCategory: category }));
+    setState((prev) => ({ ...prev, dropdownOpen: false }));
   };
 
   const handleAddPost = async (e) => {
     e.preventDefault();
 
-    if (!content.trim()) {
-      setError("Content cannot be empty");
+    if (!formData.content.trim()) {
+      setState((prev) => ({ ...prev, error: "Content cannot be empty" }));
       return;
     }
 
     try {
-      const response = await axios.post("/addpost", 
-        {
+      const response = await axios.post("/addpost", {
         userId,
-        content,
-        imageUrl,
-        tags: tags.split(",").map((tag) => tag.trim()), // Convert comma-separated string to an array
-        fashionCategory,
+        ...formData,
+        tags: formData.tags.split(",").map((tag) => tag.trim()),
       });
-      setSuccess("Post added successfully!");
-      setContent("");
-      setImageUrl("");
-      setTags("");
-      setFashionCategory("");
-      onClose(); 
-      console.log(response);
+      setState((prev) => ({ ...prev, success: "Post added successfully!", error: "" }));
+      setFormData({
+        content: "",
+        imageUrl: "",
+        tags: "",
+        fashionCategory: "",
+      });
+      onClose();
     } catch (error) {
-      setError("Error creating post. Please try again.");
+      setState((prev) => ({ ...prev, error: "Error creating post. Please try again.", success: "" }));
     }
   };
 
@@ -73,20 +85,22 @@ const AddPost = ({ userId, onClose }) => {
             <label>Content</label>
             <textarea
               placeholder="What's on your mind?"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
+              value={formData.content}
+              onChange={(e) => setFormData((prev) => ({ ...prev, content: e.target.value }))}
+              aria-label="Post Content"
             />
           </div>
 
           {/* Image Upload */}
           <div className="input-group">
-            <label>Image (Optional)</label>
+            <label>Upload Image</label>
             <input
               type="file"
               onChange={handleFileChange}
               accept="image/*"
+              aria-label="Upload Image"
             />
-            {imageUrl && <img src={imageUrl} alt="Preview" className="image-preview" />}
+            {formData.imageUrl && <img src={formData.imageUrl} alt="Preview" className="image-preview" />}
           </div>
 
           {/* Tags Input */}
@@ -95,8 +109,9 @@ const AddPost = ({ userId, onClose }) => {
             <input
               type="text"
               placeholder="e.g., fashion, outfit"
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
+              value={formData.tags}
+              onChange={(e) => setFormData((prev) => ({ ...prev, tags: e.target.value }))}
+              aria-label="Post Tags"
             />
           </div>
 
@@ -105,28 +120,28 @@ const AddPost = ({ userId, onClose }) => {
             <label>Fashion Category</label>
             <DropdownButton
               id="dropdown-fashion-category"
-              title={fashionCategory || "Select Category"}
+              title={formData.fashionCategory || "Select Category"}
               variant="outline-secondary"
-              show={dropdownOpen}
+              show={state.dropdownOpen}
               onToggle={handleToggle}
+              aria-label="Select Fashion Category"
             >
-              <Dropdown.Item
-                eventKey="Outfit"  onClick={() => handleFashionCategorySelect("Outfit")}>Outfit</Dropdown.Item>
+              <Dropdown.Item eventKey="Outfit" onClick={() => handleFashionCategorySelect("Outfit")}>Outfit</Dropdown.Item>
               <Dropdown.Item eventKey="Accessories" onClick={() => handleFashionCategorySelect("Accessories")}>Accessories</Dropdown.Item>
               <Dropdown.Item eventKey="Shoes" onClick={() => handleFashionCategorySelect("Shoes")}>Shoes</Dropdown.Item>
             </DropdownButton>
           </div>
 
           {/* Submit Button */}
-          <button type="submit" className="submit-button">Post</button>
+          <button type="submit" className="submit-button" aria-label="Submit Post">Post</button>
         </form>
 
         {/* Error and Success Messages */}
-        {error && <p className="error">{error}</p>}
-        {success && <p className="success">{success}</p>}
+        {state.error && <p className="error">{state.error}</p>}
+        {state.success && <p className="success">{state.success}</p>}
 
         {/* Close Button */}
-        <button className="close-button" onClick={onClose}>Close</button>
+        <button className="close-button" onClick={onClose} aria-label="Close Modal">Close</button>
       </div>
     </div>
   );

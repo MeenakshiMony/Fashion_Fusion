@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios"; // Ensure axios is imported for API calls
-import { useNavigate } from "react-router-dom"; // For navigation
-import {jwtDecode} from "jwt-decode"; // Import jwtDecode correctly
+import axios from "axios"; 
+import { useNavigate, useParams } from "react-router-dom"; 
+import {jwtDecode} from "jwt-decode"; 
 import "../styles/ProfilePage.css";
 import AddPost from "./AddPost";
 import SearchUsers from "./SearchUsers"; 

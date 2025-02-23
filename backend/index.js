@@ -38,8 +38,15 @@ app.get('/', (req, res) =>
   res.send(`Fashion Fusion Backend is running!`)
 )
 
-// Serve static files from the "public" folder
-app.use('/avatars', express.static('public/avatars'));
+app.get('/avatars', (req, res) => {
+  const directoryPath = path.join(__dirname, 'public/avatars');
+  fs.readdir(directoryPath, (err, files) => {
+    if (err) {
+      return res.status(500).json({ error: 'Unable to fetch files' });
+    }
+    res.json(files);
+  });
+});
 
 // Serve static files from the 'models' directory
 const modelsDirectory = path.join(__dirname, 'models');
@@ -60,7 +67,7 @@ app.get('/models', (req, res) => {
 
     // Fetch model files from both directories
     const modelFiles = [
-      ...getModelFiles(modelsDirectory, ['.glb', '.bin', '.vrm']),
+      ...getModelFiles(modelsDirectory, ['.glb', '.bin', '.vrm', '.json']),
       ...getModelFiles(gltfDirectory, ['.gltf'])
     ];
 

@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/HomePage.css';
 
+
 const HomePage = () => {
   return (
     <div className="homepage">
