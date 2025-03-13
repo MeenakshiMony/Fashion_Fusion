@@ -1,64 +1,89 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
+import "../styles/SearchUsers.css";
 
-const SearchUsers = ({ onFollow }) => {
-  const [query, setQuery] = useState(""); // Search query
-  const [users, setUsers] = useState([]); // List of users
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+export default function UserSearch({ currentUserId }) {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [followedUsers, setFollowedUsers] = useState(new Set());
+
+  useEffect(() => {
+    // Fetch all users and check followed status
+    const fetchUsers = async () => {
+      try {
+        const res = await axios.get("/users");
+        setSearchResults(res.data.filter((user) => user._id !== currentUserId));
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+    fetchUsers();
+  }, [currentUserId]);
 
   const handleSearch = async () => {
+    if (!searchTerm.trim()) {
+      setError("Please enter a search term.");
+      return;
+    }
+  
     setLoading(true);
+    setError("");
+  
     try {
-      const response = await axios.get("http://localhost:8080/users/search", {
-        params: { query }, // Send the search query
-      });
-      setUsers(response.data.users); // Set the list of users
-      setError("");
+      const response = await axios.get(`http://localhost:8080/users/search?query=${searchTerm}`);
+      setSearchResults(response.data); // Set the search results
     } catch (error) {
-      setError("Error fetching users");
+      setError("Error fetching users. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleFollow = async (userId) => {
+  const handleFollowToggle = async (userId) => {
     try {
-      await axios.post(`http://localhost:8080/users/${userId}/follow`);
-      onFollow(userId); // Call the callback passed from parent to update UI
+      const response = await axios.post(`/users/${userId}/follow`);
+      if (response.data.message === "Successfully followed the user") {
+        setFollowedUsers((prev) => new Set(prev).add(userId));
+      } else if (response.data.message === "Successfully unfollowed the user") {
+        setFollowedUsers((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(userId);
+          return newSet;
+        });
+      }
     } catch (error) {
-      setError("Error following user");
+      console.error("Error following/unfollowing user:", error);
     }
   };
 
   return (
-    <div className="search-users">
-      <input
-        type="text"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Search users"
-      />
-      <button onClick={handleSearch} disabled={loading}>
-        {loading ? "Searching..." : "Search"}
-      </button>
-
-      {error && <p className="error">{error}</p>}
-
+    <div className="search-container">
+      <form onSubmit={handleSearch} className="search-form">
+        <input
+          type="text"
+          placeholder="Search users..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="search-input"
+        />
+        <button type="submit" className="search-button">Search</button>
+      </form>
       <div className="search-results">
-        {users.length > 0 ? (
-          users.map((user) => (
-            <div key={user._id} className="user-card">
-              <p>{user.username}</p>
-              <button onClick={() => handleFollow(user._id)}>Follow</button>
+        {searchResults.map((user) => (
+          <div key={user._id} className="user-card">
+            <div className="user-info">
+              <img src={user.avatar || "/placeholder.svg"} alt={user.username} className="user-avatar" />
+              <p className="username">{user.username}</p>
             </div>
-          ))
-        ) : (
-          <p>No users found.</p>
-        )}
+            <button
+              onClick={() => handleFollowToggle(user._id)}
+              className={`follow-button ${followedUsers.has(user._id) ? "unfollow" : "follow"}`}
+            >
+              {followedUsers.has(user._id) ? "Unfollow" : "Follow"}
+            </button>
+          </div>
+        ))}
       </div>
     </div>
   );
-};
-
-export default SearchUsers;
+}

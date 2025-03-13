@@ -3,7 +3,7 @@ import axios from 'axios';
 const instance = axios.create({
   baseURL: window.location.hostname === 'localhost'
     ? 'http://localhost:8080'  // Local development
-    : 'http://192.168.1.3:8080',  // Network IP for mobile access
+    : 'https://d019-111-92-45-20.ngrok-free.app',  // Network IP for mobile access
 });
 
 // Attach the JWT token to the header for every request (if available)

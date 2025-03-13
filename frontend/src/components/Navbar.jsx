@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/Navbar.css';
+import { AlignJustify } from "lucide-react";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -15,7 +16,7 @@ const Navbar = () => {
         <Link to="/">Fashion Fusion</Link>
       </div>
       <button className="menu-toggle" onClick={toggleMenu}>
-        ☰
+        <AlignJustify size={24} color="#333" />
       </button>
       <ul className={`nav-links ${isMenuOpen ? 'open' : ''}`}>
         <li><Link to="/" onClick={toggleMenu}>Home</Link></li>

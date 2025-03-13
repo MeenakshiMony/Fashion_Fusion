@@ -1,0 +1,29 @@
+.glasses-slider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.arrow-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.glasses-list {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    white-space: nowrap;
+    max-width: 500px; /* Adjust as needed */
+}
+
+.glasses-item {
+    cursor: pointer;
+    margin: 0 10px;
+}
+
+.glasses-thumbnail {
+    width: 80px;
+    height: auto;
+}

@@ -1,0 +1,81 @@
+/* Display Posts Container */
+.display-posts {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+  }
+  /* Centered Post Card */
+  .post-card {
+    max-width: 500px;
+    margin: 0 auto; /* Center horizontally */
+    justify-content: center;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 16px;
+  }
+  /* Post Header */
+  .post-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  
+.post-username {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    width: 100%;
+}
+  /* Post Content */
+  .post-content {
+    margin-bottom: 12px;
+  }
+  
+  .post-content p {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 10px;
+  }
+  
+  .post-image {
+    width: 100%;
+    border-radius: 8px;
+    margin-top: 10px;
+  }
+  
+  /* Post Interactions */
+  .post-interactions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    font-size: 14px;
+    color: #777;
+  }
+  
+  .post-likes,
+  .post-comments {
+    cursor: pointer;
+    text-align: left;
+    transition: color 0.3s ease;
+  }
+  
+  .post-likes:hover,
+  .post-comments:hover {
+    color: #333;
+  }
+
+  .post-likes {
+    text-align: center;
+    
+  }
+
+  .post-likes-container {
+    display: flex;
+    flex-direction: column; /* Stack heart icon and likes count vertically */
+    align-items: center; /* Center items horizontally */
+  }

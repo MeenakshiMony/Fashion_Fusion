@@ -10,25 +10,27 @@ import { populateDatabase } from './scripts/dbinit';  // Import populateDatabase
 import commentRoutes from './routes/CommentRoutes'; 
 import postRoutes from './routes/PostRoutes';
 import userRoutes from './routes/auth'; 
+import eyewearRoutes from './routes/eyewears'; 
 
 const app = express();
-const PORT = process.env.PORT;
-app.use(bodyParser.json({limit:'10mb'}));
-app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
-
 
 //Use CORS middleware for all routes
 app.use(cors({
-  origin: 'http://localhost:5173', // Allow requests only from this frontend URL
+  origin: ['http://localhost:5173', 'http://192.168.1.6:5173'], // Allow requests only from this frontend URL
   credentials: true,  // If your frontend uses cookies or authentication tokens
   methods: ["GET", "POST", "PUT", "DELETE"], 
   allowedHeaders: ["Content-Type", "Authorization"], // Allowed headers
 }));
 
+const PORT = process.env.PORT;
+app.use(bodyParser.json({limit:'10mb'}));
+app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
+
 // Use the routes
 app.use('/', userRoutes);
 app.use('/', postRoutes);
 app.use('/', commentRoutes);
+app.use('/', eyewearRoutes);
 
 app.listen(PORT , () => {
   console.log(`Server running on port ${PORT}`);
@@ -38,15 +40,21 @@ app.get('/', (req, res) =>
   res.send(`Fashion Fusion Backend is running!`)
 )
 
-app.get('/avatars', (req, res) => {
-  const directoryPath = path.join(__dirname, 'public/avatars');
-  fs.readdir(directoryPath, (err, files) => {
-    if (err) {
-      return res.status(500).json({ error: 'Unable to fetch files' });
-    }
-    res.json(files);
-  });
-});
+// Serve static files from the "public" folder
+app.use('/avatars', express.static('public/avatars'));
+
+// Serve 3D models and textures dynamically
+app.use("/3dmodel", express.static(path.join(__dirname, "3dmodel")));
+
+// app.get('/avatars', (req, res) => {
+//   const directoryPath = path.join(__dirname, 'public/avatars');
+//   fs.readdir(directoryPath, (err, files) => {
+//     if (err) {
+//       return res.status(500).json({ error: 'Unable to fetch files' });
+//     }
+//     res.json(files);
+//   });
+// });
 
 // Serve static files from the 'models' directory
 const modelsDirectory = path.join(__dirname, 'models');

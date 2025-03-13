@@ -64,50 +64,73 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Backend route (Node.js / Express)
-router.get("/users/search", async (req, res) => {
-  const { query } = req.query; // Query string to search for users (e.g., by name)
-  
+// Search users by username
+router.get("/search", async (req, res) => {
   try {
-    const users = await User.find({
-      username: { $regex: query, $options: "i" }, // Search by username (case-insensitive)
-    }).select("-password"); // Exclude password from results
-    
-    res.json({ users });
+    const { query } = req.query; // Get the search term from query parameters
+
+    if (!query) {
+      return res.status(400).json({ message: "Search query is required" });
+    }
+
+    // Search for users whose username matches or partially matches the query
+    const users = await User.find(
+      { username: { $regex: query, $options: "i" } }, // Case-insensitive search
+      { password: 0, __v: 0 } // Exclude sensitive fields
+    );
+
+    if (users.length === 0) {
+      return res.status(404).json({ message: "No users found" });
+    }
+
+    // Return the list of matching users
+    res.status(200).json(users);
   } catch (error) {
-    res.status(500).json({ error: "Error searching for users" });
+    console.error("Error searching users:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 
-// Follow user route
+// Follow/Unfollow user route
 router.post("/users/:id/follow", async (req, res) => {
   const currentUserId = req.user.id; // Get the logged-in user's ID
-  const followUserId = req.params.id; // Get the ID of the user to follow
-  
+  const followUserId = req.params.id; // Get the ID of the user to follow/unfollow
+
   try {
     const currentUser = await User.findById(currentUserId);
     const userToFollow = await User.findById(followUserId);
-    
+
     if (!currentUser || !userToFollow) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Check if the user is already following
-    if (currentUser.following.includes(followUserId)) {
-      return res.status(400).json({ error: "Already following this user" });
+    // Check if the current user is already following the target user
+    const isFollowing = currentUser.following.includes(followUserId);
+
+    if (isFollowing) {
+      // Unfollow the user
+      currentUser.following = currentUser.following.filter(
+        (id) => id.toString() !== followUserId
+      );
+      userToFollow.followers = userToFollow.followers.filter(
+        (id) => id.toString() !== currentUserId
+      );
+      await currentUser.save();
+      await userToFollow.save();
+
+      return res.status(200).json({ message: "Successfully unfollowed the user" });
+    } else {
+      // Follow the user
+      currentUser.following.push(followUserId);
+      userToFollow.followers.push(currentUserId);
+      await currentUser.save();
+      await userToFollow.save();
+
+      return res.status(200).json({ message: "Successfully followed the user" });
     }
-
-    // Add the user to the current user's following list
-    currentUser.following.push(followUserId);
-    await currentUser.save();
-
-    // Add the current user to the followed user's followers list
-    userToFollow.followers.push(currentUserId);
-    await userToFollow.save();
-
-    res.status(200).json({ message: "Successfully followed the user" });
   } catch (error) {
-    res.status(500).json({ error: "Error following user" });
+    console.error("Error following/unfollowing user:", error);
+    res.status(500).json({ error: "Error following/unfollowing user" });
   }
 });
 

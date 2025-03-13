@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from '../utils/axios';
 import { jwtDecode } from "jwt-decode";
 import '../styles/CommunityPage.css';
+import { Heart, MessageCircle } from "lucide-react"
 
 const CommunityPage = () => {
   const [posts, setPosts] = useState([]);
@@ -132,7 +133,7 @@ const CommunityPage = () => {
       {error && <p>{error}</p>}
       <section className="social-feed">
         <h2>Latest Posts</h2>
-        {posts.length > 0 ? (
+        {Array.isArray(posts) && posts.length > 0 ? (
           posts.map((post) => (
             <div key={post._id} className="post-card">
               <div className="post-header">

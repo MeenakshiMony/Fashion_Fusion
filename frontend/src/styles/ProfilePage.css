@@ -1,88 +1,146 @@
+/* Profile Page */
 .profile-page {
-  max-width: 900px;
+  padding: 20px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
+  font-family: Arial, sans-serif;
 }
 
-.profile-title {
+h1 {
   text-align: center;
-  font-size: 28px;
-  color: #003366;
-  margin-bottom: 20px;
+  color: #333;
 }
 
-.profile-container {
-  display: grid;
-  grid-template-columns: 1fr 2fr 1fr;
-  gap: 20px;
-  align-items: start;
-}
-
+/* Profile Card */
 .profile-card {
+  width: 400px; /* Fixed width */
+  margin: 0 auto 20px; /* Center the card */
   background: white;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-  text-align: center;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  position: relative;
 }
 
-.profile-image img {
+/* Header with Gradient */
+.profile-header {
+  height: 120px;
+  background: linear-gradient(to right, #3b82f6, #facc15);
+  position: relative;
+}
+
+/* Profile Details */
+.profile-details {
+  padding: 20px;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.profile-image {
+  margin-top: -60px; /* Move the avatar up into the header */
+}
+
+.profile-avatar {
   width: 100px;
   height: 100px;
   border-radius: 50%;
+  border: 3px solid white;
+  object-fit: cover;
 }
 
 .profile-details p {
   margin: 10px 0;
+  font-size: 16px;
+  color: #555;
 }
 
-.profile-actions button {
-  background: #FF6F61;
-  color: white;
+.profile-details strong {
+  color: #333;
+}
+
+/* Tab Navigation */
+.tab-navigation {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.tab-button {
+  padding: 10px 20px;
   border: none;
-  padding: 10px 15px;
   border-radius: 5px;
-  margin-top: 10px;
+  background-color: #f0f0f0;
+  color: #333;
+  font-size: 14px;
   cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.followers-following {
-  background: white;
-  border-radius: 12px;
+.tab-button.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.tab-button:hover {
+  background-color: #0056b3;
+  color: white;
+}
+
+/* Tab Content */
+.tab-content {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.user-posts,
+.add-post-section,
+.search-users-section {
+  background: #f9f9f9;
   padding: 20px;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.user-posts {
-  background: white;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-}
-
+/* Saved Outfits */
 .saved-outfits {
-  margin-top: 30px;
+  margin-top: 40px;
+}
+
+.saved-outfits h2 {
+  margin-bottom: 20px;
+  font-size: 24px;
+  color: #333;
 }
 
 .outfit-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 15px;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 20px;
+}
+
+.outfit-card {
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.outfit-card:hover {
+  transform: translateY(-5px);
 }
 
 .outfit-card img {
   width: 100%;
-  border-radius: 8px;
+  height: 200px;
+  object-fit: cover;
 }
 
-.loader {
+.outfit-card p {
+  padding: 10px;
   text-align: center;
-  font-size: 18px;
-  color: #FF6F61;
-}
-
-.error-message {
-  text-align: center;
-  color: red;
-  font-weight: bold;
+  font-size: 16px;
+  color: #555;
 }

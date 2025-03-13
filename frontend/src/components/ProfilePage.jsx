@@ -1,20 +1,26 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios"; 
-import { useNavigate, useParams } from "react-router-dom"; 
-import {jwtDecode} from "jwt-decode"; 
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 import "../styles/ProfilePage.css";
+import { Users, Image, Search } from "lucide-react"
+
 import AddPost from "./AddPost";
-import SearchUsers from "./SearchUsers"; 
+import SearchUsers from "./SearchUsers";
+import DisplayPosts from "./DisplayPosts";
 
 const ProfilePage = () => {
   const [profile, setProfile] = useState({
     name: "",
     email: "",
     avatar: "",
+    followersCount: 0,
+    followingCount: 0,
+    posts: [],
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [showAddPost, setShowAddPost] = useState(false);
+  const [activeTab, setActiveTab] = useState("posts"); // State to track active tab
 
   const [savedOutfits] = useState([
     {
@@ -53,20 +59,19 @@ const ProfilePage = () => {
         );
 
         const user = response.data.user;
-        
-        
+
+        console.log(response.data.user);
         setProfile({
-          id:userId,
+          id: userId,
           name: user.username,
           email: user.email,
           avatar: user.avatar,
           followersCount: user.followersCount,
           followingCount: user.followingCount,
-          posts:user.posts,
+          posts: user.posts,
           password: user.password,
-
         });
-        
+
         setLoading(false);
       } catch (error) {
         if (error.response && error.response.status === 401) {
@@ -84,27 +89,22 @@ const ProfilePage = () => {
 
   return (
     <div className="profile-page">
-    <h1>Profile</h1>
+      <h1>Profile</h1>
 
-    <div className="profile-container">
-      {/* Left side: Followers and Following */}
-      <div className="followers-following">
-        <h3>Followers</h3>
-        <p>{profile.followersCount || 0}</p>
-        <h3>Following</h3>
-        <p>{profile.followingCount || 0}</p>
-      </div>
-
-      {/* Central Profile Card */}
+      {/* Profile Card */}
       <div className="profile-card">
-        <div className="profile-image">
-          <img
-            src={profile.avatar || "https://via.placeholder.com/100"}
-            alt={`${profile.name}'s avatar`}
-            className="profile-avatar"
-          />
-        </div>
+        {/* Header with Gradient */}
+        <div className="profile-header"></div>
+
+        {/* Profile Details */}
         <div className="profile-details">
+          <div className="profile-image">
+            <img
+              src={profile.avatar || "https://via.placeholder.com/100"}
+              alt={`${profile.name}'s avatar`}
+              className="profile-avatar"
+            />
+          </div>
           <p>
             <strong>Name: </strong>
             <span>{profile.name}</span>
@@ -113,48 +113,81 @@ const ProfilePage = () => {
             <strong>Email: </strong>
             <span>{profile.email}</span>
           </p>
-        </div>
-        <div className="profile-actions">
-          <button className="add-post-button" onClick={() => setShowAddPost(true)} >Add Post</button>
-          {/* Add Post Modal */}
-          {showAddPost && (
-          <AddPost
-            userId={profile.id}
-            onClose={() => setShowAddPost(false)}
-          />
-          )}
-          <button className="search-users-btn">Search Users</button>
+          <p>
+            <strong>Followers: </strong>
+            <span>{profile.followersCount || 0}</span>
+            <strong> Following: </strong>
+            <span>{profile.followingCount || 0}</span>
+          </p>
         </div>
       </div>
 
-      {/* Right side: User's Posts */}
-      <div className="user-posts">
-        <h3>Your Posts</h3>
-        {profile.posts?.length > 0 ? (
-          profile.posts.map((post, index) => (
-            <div key={index} className="post-card">
-              <p>{post._id}</p>
-            </div>
-          ))
-        ) : (
-          <p>No posts yet.</p>
+      {/* Tab Navigation */}
+      <div className="tab-navigation">
+        <button
+          className={`tab-button ${activeTab === "posts" ? "active" : ""}`}
+          onClick={() => setActiveTab("posts")}
+        >
+          <Image  />
+            Posts
+        </button>
+        <button
+          className={`tab-button ${activeTab === "addPost" ? "active" : ""}`}
+          onClick={() => setActiveTab("addPost")}
+        >
+          <Image />
+          Add Post
+        </button>
+        <button
+          className={`tab-button ${activeTab === "searchUsers" ? "active" : ""}`}
+          onClick={() => setActiveTab("searchUsers")}
+        >
+          <Search />
+          Search Users
+        </button>
+        <button
+          className={`tab-button ${activeTab === "savedOutfits" ? "active" : ""}`}
+          onClick={() => setActiveTab("savedOutfits")}
+        >
+          <Image />
+          saved Outfits
+        </button>
+      </div>
+
+      {/* Tab Content */}
+      <div className="tab-content">
+        {activeTab === "posts" && (
+          <DisplayPosts posts={profile.posts || posts} avatar={profile.avatar} username={profile.name}/>
+        )}
+
+        {activeTab === "addPost" && (
+          <div className="add-post-section">
+            <AddPost userId={profile.id} onClose={() => setActiveTab("posts")} />
+          </div>
+        )}
+
+        {activeTab === "searchUsers" && (
+          <div className="search-users-section">
+            <SearchUsers />
+          </div>
+        )}
+
+        {activeTab === "savedOutfits" && (
+          <section className="saved-outfits">
+          <h2>Saved Outfits</h2>
+          <div className="outfit-grid">
+            {savedOutfits.map((outfit) => (
+              <div key={outfit.id} className="outfit-card">
+                <img src={outfit.imageUrl} alt={outfit.description} />
+                <p>{outfit.description}</p>
+              </div>
+            ))}
+          </div>
+        </section>
         )}
       </div>
+      
     </div>
-
-    <section className="saved-outfits">
-      <h2>Saved Outfits</h2>
-      <div className="outfit-grid">
-        {savedOutfits.map((outfit) => (
-          <div key={outfit.id} className="outfit-card">
-            <img src={outfit.imageUrl} alt={outfit.description} />
-            <p>{outfit.description}</p>
-          </div>
-        ))}
-      </div>
-    </section>
-  </div>
-
   );
 };
 
