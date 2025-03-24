@@ -6,30 +6,17 @@
   position: relative; /* Ensure it contains absolute children */
 }
 
-.page-header {
-  text-align: center;
-  margin-top: 20px;
-}
 
-/* Video feed positioning */
-.ar-container {
-  position: relative; /* Relative positioning for containing absolute children */
-  width: 100%;
-  height: calc(100vh - 110px); /* Adjust height to fit below the navbar */
-  margin-top: 30px; /* Leave space for the navbar */
+.try-on-container {
+  position: relative; /* Ensures absolute children align properly */
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  width: 640px;
+  height: 480px;
+  margin: auto; /* Centers in the parent */
   overflow: hidden;
-}
-
-a-scene {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-}
-
-#webcamButton{
-  margin-bottom: 10px;
-  background-color: #4CAF50;
-  color: white;
+  margin-bottom: 20px;
 }
 
 .navbar {
@@ -73,49 +60,6 @@ a-scene {
   z-index: 12; /* Ensure it's above the side panel */
 }
 
-.outfit-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
-}
-
-.outfit-card {
-  border: 1px solid #ddd;
-  padding: 10px;
-  text-align: center;
-  border-radius: 5px;
-  background-color: #fff;
-}
-
-.outfit-card img {
-  width: 100%;
-  border-radius: 5px;
-}
-
-.model-list {
-  list-style: none;
-  padding: 0;
-  margin: 10px 0;
-}
-
-.model-item {
-  padding: 10px;
-  margin: 5px 0;
-  background-color: #f9f9f9;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.model-item:hover {
-  background-color: #f1f1f1;
-}
-
-.model-item.selected {
-  background-color: #d1e7dd;
-  border-color: #0f5132;
-}
-
 .upload-container {
   margin-top: 20px;
 }
@@ -130,29 +74,27 @@ a-scene {
   margin-top: 10px;
 }
 
-.video-canvas-container {
-  position: relative; /* Contain #webcam and .output_canvas within .ar-container */
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-#webcam {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.webcam, 
+.pose-canvas, 
+.threejs-canvas {
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 1; /* Ensure it appears below the canvas */
+  width: 640px;
+  height: 480px;
 }
 
-.output_canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 2; /* Ensure it appears above the webcam */
+.webcam {
+  z-index: 1;  /* Bottom layer - actual webcam feed */
 }
+
+.pose-canvas {
+  z-index: 2;  /* Middle layer - pose landmarks */
+  pointer-events: none; /* Allows clicks to pass through */
+}
+
+.threejs-canvas {
+  z-index: 3;  /* Top layer - 3D models */
+  background: transparent; /* Make Three.js canvas transparent */
+}
+
