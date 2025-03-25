@@ -11,188 +11,160 @@ import '../styles/TryOnPage.css';
 import ModelSidePanel from '../components/ModelSidePanel';
 import { SkeletonHelper } from 'three';
 import * as Kalidokit from "kalidokit";
+import * as tf from '@tensorflow/tfjs';
+import * as tfjsWasm from '@tensorflow/tfjs-backend-wasm';
+import '@tensorflow/tfjs-backend-webgl';
 
 
-// const Model = ({ data, riggedPose, riggedFace, riggedLeftHand, riggedRightHand }) => {
-//     const { scene } = useGLTF(data.url);
-//     const modelRef = useRef();
-
-//     useEffect(() => {
-//         if (scene) {
-//             console.log("Loaded GLTF Scene:", scene);
-//             scene.traverse((obj) => {
-//                 if (obj.isBone) {
-//                     console.log("Bone Name:", obj.name);
-//                 }
-//             });
-//         }
-//     }, [scene]);
-
-//     useFrame(() => {
-//         if (!modelRef.current || !riggedPose) return;
-
-//         // Map rigged pose to the 3D model bones
-//         const rigPoints = {
-//             "nose": riggedPose.head,
-//             "left_eye_(inner)": riggedPose.leftEye,
-//             "left_eye": riggedPose.leftEye,
-//             "left_eye_(outer)": riggedPose.leftEye,
-//             "right_eye_(inner)": riggedPose.rightEye,
-//             "right_eye": riggedPose.rightEye,
-//             "right_eye_(outer)": riggedPose.rightEye,
-//             "left_ear": riggedPose.leftEar,
-//             "right_ear": riggedPose.rightEar,
-//             "mouth_(left)": riggedPose.mouth,
-//             "mouth_(right)": riggedPose.mouth,
-//             "left_shoulder": riggedPose.leftShoulder,
-//             "right_shoulder": riggedPose.rightShoulder,
-//             "left_elbow": riggedPose.leftElbow,
-//             "right_elbow": riggedPose.rightElbow,
-//             "left_wrist": riggedPose.leftWrist,
-//             "right_wrist": riggedPose.rightWrist,
-//             "left_pinky": riggedPose.leftPinky,
-//             "right_pinky": riggedPose.rightPinky,
-//             "left_index": riggedPose.leftIndex,
-//             "right_index": riggedPose.rightIndex,
-//             "left_thumb": riggedPose.leftThumb,
-//             "right_thumb": riggedPose.rightThumb,
-//             "left_hip": riggedPose.leftHip,
-//             "right_hip": riggedPose.rightHip,
-//             "left_knee": riggedPose.leftKnee,
-//             "right_knee": riggedPose.rightKnee,
-//             "left_ankle": riggedPose.leftAnkle,
-//             "right_ankle": riggedPose.rightAnkle,
-//             "left_heel": riggedPose.leftHeel,
-//             "right_heel": riggedPose.rightHeel,
-//             "left_foot_index": riggedPose.leftFootIndex,
-//             "right_foot_index": riggedPose.rightFootIndex,
-//         };
-
-//         // Apply rigged data to the 3D model bones
-//         Object.keys(rigPoints).forEach((boneName) => {
-//             const bone = modelRef.current.getObjectByName(boneName);
-//             const rigData = rigPoints[boneName];
-
-//             if (bone && rigData) {
-//                 bone.rotation.set(rigData.rotation.x, rigData.rotation.y, rigData.rotation.z);
-//                 bone.position.set(rigData.position.x, rigData.position.y, rigData.position.z);
-//             }
-//         });
-//     });
-
-//     return <primitive ref={modelRef} object={scene} />;
-// };
-
-const Model = ({data, landmarks, width,   height}) => {
-    
-    const {scene} = useGLTF(data.url);
-    const modelRef = useRef();
-
+const Model = ({ data, landmarks, worldLandmarks, width, height }) => {
+    const { scene } = useGLTF(data.url);
+    const groupRef = useRef();
+    const currentQuaternion = useRef(new THREE.Quaternion());
+    const bodyForward = useRef(new THREE.Vector3());
+  
     useEffect(() => {
-        if (scene) {
-            console.log("Loaded GLTF Scene:", scene);
-            scene.traverse((obj) => {
-                if (obj.isBone) {
-                    console.log("Bone Name:", obj.name);
-                }
-            });
-        }
+      if (scene) {
+        console.log("Loaded GLTF Scene:", scene);
+        scene.traverse((obj) => {
+          if (obj.isBone) {
+            console.log("Bone Name:", obj.name);
+          }
+        });
+      }
     }, [scene]);
 
-    // Function to update outfit bones based on landmarks
-    const updateOutfitBones = (skeleton, poseLandmarks) => {
-        if (!scene || !poseLandmarks || poseLandmarks.length === 0) {
-            console.warn("⚠️ Scene or landmarks missing!");
-            return;
-        }
-
-        const boneMapping = {
-            "nose": 0, "left_eye_(inner)": 1,
-            "left_eye": 2, "left_eye_(outer)": 3,
-            "right_eye_(inner)": 4, "right_eye": 5,
-            "right_eye_(outer)": 6, "left_ear": 7,
-            "right_ear": 8, "left_mouth": 9,
-            "right_mouth": 10, "left_shoulder": 11,
-            "right_shoulder": 12, "left_elbow": 13,
-            "right_elbow": 14, "left_wrist": 15,
-            "right_wrist": 16, "left_pinky": 17,
-            "right_pinky": 18, "left_index": 19,
-            "right_index": 20, "left_thumb": 21,
-            "right_thumb": 22, "left_hip": 23,
-            "right_hip": 24, "left_knee": 25,
-            "right_knee": 26, "left_ankle": 27,
-            "right_ankle": 28, "left_heel": 29,
-            "right_heel": 30, "left_foot_index": 31,
-            "right_foot_index": 32
-          }
-          
-        const landmarkScale = 500; 
-
-        Object.keys(boneMapping).forEach((boneName) => {
-        
-            const landmarkIndex = boneMapping[boneName];
-            const bone = skeleton.getObjectByName(boneName);
-            const landmark = poseLandmarks[0][landmarkIndex];
-
-            if (!bone) {
-                console.warn(`🚨 Bone not found for: ${boneName}`);
-                return;
-            }
-            if (!landmark) {
-                console.warn(`🚨 Landmark not found for index: ${landmarkIndex}`);
-                return;
-            }
-            
-            const leftShoulder = landmarks[0][11];
-            const rightShoulder = landmarks[0][12];
-            const leftHip = landmarks[0][23];
-            const rightHip = landmarks[0][24];
-            
-
-            // Compute shoulder width
-            const shoulderWidth = Math.hypot(
-                Math.pow(rightShoulder.x - leftShoulder.x, 2) +
-                Math.pow(rightShoulder.y - leftShoulder.y, 2)
-              )*landmarkScale ;
-
-            // Base reference size (change this based on model size)
-           
-
-            // Compute scale factor
-            const baseShoulderWidth = 16; 
-            const scaleFactor = shoulderWidth / baseShoulderWidth;
-            modelRef.current.scale.set(scaleFactor, scaleFactor, scaleFactor);
-
-            // Compute angle for proper facing direction
-            const faceAngle = Math.atan2(
-                rightShoulder.x - leftShoulder.x, 
-                rightShoulder.z - leftShoulder.z
-            );
-            modelRef.current.rotation.y = -faceAngle + Math.PI;
-
-            // Normalize landmark values to match the 3D model scale
-          
-            const newPos = {
-                x: (landmark.x - 0.5) * 2,  // Convert to -1 to 1 range for Three.js
-                y: (0.5 - landmark.y) * 2,  // Flip Y axis
-                z: landmark.z * 0.1   
-            };
-
-            modelRef.current.position.set(newPos.x, newPos.y, newPos.z);
-        });
+    const boneMapping = {
+        nose: 0,
+        left_eye_inner: 1,
+        left_eye: 2,
+        left_eye_outer: 3,
+        right_eye_inner: 4,
+        right_eye: 5,
+        right_eye_outer: 6,
+        left_ear: 7,
+        right_ear: 8,
+        left_mouth: 9,
+        right_mouth: 10,
+        left_shoulder: 11,
+        right_shoulder: 12,
+        left_elbow: 13,
+        right_elbow: 14,
+        left_wrist: 15,
+        right_wrist: 16,
+        left_pinky: 17,
+        right_pinky: 18,
+        left_index: 19,
+        right_index: 20,
+        left_thumb: 21,
+        right_thumb: 22,
+        left_hip: 23,
+        right_hip: 24,
+        left_knee: 25,
+        right_knee: 26,
+        left_ankle: 27,
+        right_ankle: 28,
+        left_heel: 29,
+        right_heel: 30,
+        left_foot_index: 31,
+        right_foot_index: 32,
     };
-
-    // Update bone positions each frame
+  
+    // Function to update outfit bones based on landmarks
     useFrame(() => {
-        if (landmarks && scene) {
-            updateOutfitBones(scene, landmarks);
-        }
+      if (!groupRef.current || !landmarks ) {
+        console.warn("⚠️ Scene or landmarks missing!");
+        return;
+      }
+  
+    // 1. Get 3D shoulder landmarks
+    const leftShoulder3D = worldLandmarks[11];
+    const rightShoulder3D = worldLandmarks[12];
+    const leftHip3D = worldLandmarks[23];
+    const rightHip3D = worldLandmarks[24];
+
+    // 2. Calculate 3D body forward vector
+    const shoulderToShoulder = new THREE.Vector3(
+        rightShoulder3D.x - leftShoulder3D.x,
+        rightShoulder3D.y - leftShoulder3D.y,
+        rightShoulder3D.z - leftShoulder3D.z
+    );
+
+    const hipToHip = new THREE.Vector3(
+        rightHip3D.x - leftHip3D.x,
+        rightHip3D.y - leftHip3D.y,
+        rightHip3D.z - leftHip3D.z
+    );
+
+    // 3. Calculate body forward (cross product)
+    const bodyUp = new THREE.Vector3(0, 1, 0); // Y-up convention
+    bodyForward.current.crossVectors(shoulderToShoulder, bodyUp).normalize();
+
+    // 4. Calculate rotation
+    const targetQuaternion = new THREE.Quaternion();
+    targetQuaternion.setFromUnitVectors(
+        new THREE.Vector3(0, 0, -1), // Model's forward
+        bodyForward.current
+    );
+
+    // 5. Smooth rotation
+    currentQuaternion.current.slerp(targetQuaternion, 0.1);
+
+    // 6. Apply transformations
+    groupRef.current.position.set(
+        (landmarks[23].x - 0.5) * 2, // X
+        (0.5 - landmarks[23].y) * 2, // Y (flipped)
+        -Math.abs(leftShoulder3D.z) * 1.5 // Z (into screen)
+      );
+      
+    groupRef.current.quaternion.copy(currentQuaternion.current);
+    groupRef.current.scale.setScalar(shoulderToShoulder.length() / 0.3);
+
     });
-
-    return <primitive ref={modelRef} object={scene} />;
-
+    //   Object.keys(boneMapping).forEach((boneName) => {
+    //     const landmarkIndex = boneMapping[boneName];
+    //     const bone = scene.getObjectByName(boneName);
+    //     const landmark = landmarks[0][landmarkIndex];
+  
+    //     if (!bone) {
+    //       console.warn(`🚨 Bone not found for: ${boneName}`);
+    //       return;
+    //     }
+    //     if (!landmark) {
+    //       console.warn(`🚨 Landmark not found for index: ${landmarkIndex}`);
+    //       return;
+    //     }
+  
+    //     const leftShoulder = landmarks[0][11];
+    //     const rightShoulder = landmarks[0][12];
+  
+    //     // Compute angle for proper facing direction
+    //     const faceAngle = Math.atan2(
+    //       rightShoulder.y - leftShoulder.y,
+    //       rightShoulder.x - leftShoulder.x
+    //     );
+  
+    //     if (groupRef.current) {
+    //         groupRef.current.rotation.y = faceAngle;
+  
+    //       const newPos = {
+    //         x: (landmark.x - 0.5) * 2, // Convert to -1 to 1 range for Three.js
+    //         y: (0.5 - landmark.y) * 2, // Flip Y axis
+    //         z: landmark.z * 0.1,
+    //       };
+  
+    //       groupRef.current.position.set(newPos.x, newPos.y, newPos.z);
+    //       groupRef.current.scale.set(5, 5, 5);
+    //     }
+    //   });
+    // });
+  
+    return (
+        <group ref={groupRef}>  // ✅ Ref here
+          <primitive object={scene} />  // Original model untouched
+          <arrowHelper args={[bodyForward.current, new THREE.Vector3(0, 0, 0), 0.5, 0xff0000]} />
+        </group>
+      );
 };
-
 
 
 // const GlassModel = ({data, landmarks}) => {
@@ -256,6 +228,15 @@ Model.propTypes = {
             })
         )
     ),
+    worldLandmarks: PropTypes.arrayOf(
+        PropTypes.arrayOf(
+            PropTypes.shape({
+                x: PropTypes.number.isRequired,
+                y: PropTypes.number.isRequired,
+                z: PropTypes.number.isRequired
+            })
+        )
+    ),
     width: PropTypes.number,  // Corrected integer type
     height: PropTypes.number 
 };
@@ -273,6 +254,7 @@ const TryOnPage = () => {
     const [riggedRightHand, setRiggedRightHand] = useState(null);
     const [width, setwidth] = useState(null);
     const [height,setheight] = useState(null);
+    const [worldLandmarks, setWorldLandmarks] = useState(null);
 
     const webcamRef = useRef(null); 
     const canvasRef = useRef(null);
@@ -281,9 +263,16 @@ const TryOnPage = () => {
     useEffect(() => {
         const initializePoseLandmarker = async () => {
             try {
-              const vision = await FilesetResolver.forVisionTasks(
-                'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm'
-              );
+
+                // TensorFlow.js backend setup
+                await tf.setBackend('webgl'); // Or 'wasm'
+                await tfjsWasm.setWasmPaths(
+                    `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${tfjsWasm.version_wasm}/dist/`
+                );
+                const vision = await FilesetResolver.forVisionTasks(
+                    'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm'
+                );
+
               const poseLandmarkerInstance = await PoseLandmarker.createFromOptions(vision, {
                 baseOptions: {
                   modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_heavy/float16/1/pose_landmarker_heavy.task',
@@ -291,6 +280,12 @@ const TryOnPage = () => {
                 },
                 runningMode: 'VIDEO',
                 numPoses: 1,
+                modelComplexity: 1,       // Balanced accuracy/speed
+                smoothLandmarks: true,    // Reduce jitter
+                enableSegmentation: false,// No background removal
+                smoothSegmentation: false,// N/A (segmentation off)
+                minDetectionConfidence: 0.5, // Moderate detection strictness
+                minTrackingConfidence: 0.5,  // Moderate tracking strictness
               });
               setPoseLandmarker(poseLandmarkerInstance);
             } catch (err) {
@@ -333,7 +328,8 @@ const TryOnPage = () => {
             const results = await poseLandmarker.detectForVideo(webcamRef.current.video, performance.now());
             if (results.landmarks) {
                 drawLandmarks(results.landmarks);
-                setLandmarks(results.landmarks);  
+                setLandmarks(results.landmarks[0]);  
+                setWorldLandmarks(results.worldLandmarks[0]);
                 
                 
             }
@@ -401,17 +397,18 @@ const TryOnPage = () => {
                 <Webcam
                     ref={webcamRef}
                     audio={false}
+                    mirrored={true} 
                     className="webcam"
                     screenshotFormat="image/jpeg"
                     videoConstraints={{ facingMode: 'user' }}
-                    style={{ display: cameraOn ? 'block' : 'none'}}
+                    style={{ transform: "scaleX(-1)", display: cameraOn ? 'block' : 'none'}}
                     onUserMedia={() => {
                     console.log("Webcam ready");
                     
                     }}                  
                 />
                 <canvas ref={canvasRef} className="pose-canvas" style={{ display: cameraOn ? 'block' : 'none' }} />
-                <Canvas className="threejs-canvas" style={{display: cameraOn ? 'block' : 'none'}} >
+                <Canvas className="threejs-canvas" style={{transform: "scaleX(-1)", display: cameraOn ? 'block' : 'none'}} >
                     <ambientLight intensity={0.5} />
                     <directionalLight position={[10,10,10]} intensity={0.8} />
                     <OrbitControls />
@@ -420,6 +417,7 @@ const TryOnPage = () => {
                                 <Model
                                     data={selectedOutfit}
                                     landmarks={landmarks}
+                                    worldLandmarks={worldLandmarks}
                                     width={width}
                                     height={height}
                                 />
