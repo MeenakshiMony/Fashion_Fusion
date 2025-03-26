@@ -120,6 +120,15 @@ const Model = ({ data, landmarks, worldLandmarks, width, height }) => {
     groupRef.current.scale.setScalar(shoulderToShoulder.length() / 0.3);
 
     });
+
+    return (
+        <group ref={groupRef}>  // ✅ Ref here
+          <primitive object={scene} />  // Original model untouched
+          <arrowHelper args={[bodyForward.current, new THREE.Vector3(0, 0, 0), 0.5, 0xff0000]} />
+        </group>
+      );
+};
+
     //   Object.keys(boneMapping).forEach((boneName) => {
     //     const landmarkIndex = boneMapping[boneName];
     //     const bone = scene.getObjectByName(boneName);
@@ -158,13 +167,6 @@ const Model = ({ data, landmarks, worldLandmarks, width, height }) => {
     //   });
     // });
   
-    return (
-        <group ref={groupRef}>  // ✅ Ref here
-          <primitive object={scene} />  // Original model untouched
-          <arrowHelper args={[bodyForward.current, new THREE.Vector3(0, 0, 0), 0.5, 0xff0000]} />
-        </group>
-      );
-};
 
 
 // const GlassModel = ({data, landmarks}) => {
@@ -401,14 +403,14 @@ const TryOnPage = () => {
                     className="webcam"
                     screenshotFormat="image/jpeg"
                     videoConstraints={{ facingMode: 'user' }}
-                    style={{ transform: "scaleX(-1)", display: cameraOn ? 'block' : 'none'}}
+                    style={{ transform: "scaleX(-1)",display: cameraOn ? 'block' : 'none'}}
                     onUserMedia={() => {
                     console.log("Webcam ready");
                     
                     }}                  
                 />
                 <canvas ref={canvasRef} className="pose-canvas" style={{ display: cameraOn ? 'block' : 'none' }} />
-                <Canvas className="threejs-canvas" style={{transform: "scaleX(-1)", display: cameraOn ? 'block' : 'none'}} >
+                <Canvas className="threejs-canvas" style={{display: cameraOn ? 'block' : 'none'}} >
                     <ambientLight intensity={0.5} />
                     <directionalLight position={[10,10,10]} intensity={0.8} />
                     <OrbitControls />

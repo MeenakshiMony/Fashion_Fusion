@@ -1,8 +1,11 @@
 import express from 'express';
 const router = express.Router();
+import multer from 'multer';
 import UserModel from '../model/User';
 import PostModel from '../model/Post'; 
 import Comment from '../model/Comment';
+
+const upload = multer({ storage: multer.memoryStorage() });
 
 //fetch all posts along with populated comments
 router.get('/posts', async (req, res) => {
@@ -28,7 +31,7 @@ router.get('/posts', async (req, res) => {
 router.get('/posts/:id', async (req,res) => {
   try{
     const { id } = req.params;
-    const post = await PostModel.findById(id);
+    const post = await PostModel.findById(id).sort({ createdAt: -1 });  // Filter posts by userId
 
     if (!post) {
       return res.status(404).json({ message: "Post not found" });
@@ -40,28 +43,36 @@ router.get('/posts/:id', async (req,res) => {
    }
 });
 
-//add post
-router.post("/addpost", async (req, res) => {
-  const { userId, content, imageUrl, tags, fashionCategory } = req.body; 
-  if (!userId || !content) {
-    return res.status(400).json({ message: "User ID and content are required" }); 
-  }
+router.post("/addpost", upload.single("image"), async (req, res) => {
   try {
-    // Create a new post
-    const newPost = new PostModel({ userId, content, imageUrl, tags, fashionCategory });
-    const savedPost = await newPost.save();
-    await UserModel.findByIdAndUpdate(userId, { $push: { posts: savedPost._id } });
+    console.log("Received Data:", req.body);
+    console.log("File Data:", req.file);
 
-    res.status(201).json({ message: "Post created successfully", post: savedPost });
+    const { userId, content, fashionCategory } = req.body;
+
+    // Validate required fields
+    if (!userId || !content || !fashionCategory) {
+      return res.status(400).json({ error: "All fields are required." });
+    }
+
+    // Convert the uploaded image to Base64 if it exists
+    const imageBase64 = req.file ? req.file.buffer.toString("base64") : null;
+
+    // Create a new post
+    const newPost = new PostModel({
+      userId,
+      content,
+      fashionCategory,
+      image: imageBase64, // Store the Base64 string in the database
+    });
+
+    await newPost.save();
+    res.status(201).json({ message: "Post added successfully!", post: newPost });
   } catch (error) {
     console.error("Error creating post:", error);
-    res.status(500).json({ 
-      message: "Error creating post", 
-      error: error.message || "Unknown error",
-    });
+    res.status(500).json({ error: "Server error. Please try again." });
   }
 });
-
 
 // POST route to add a new comment to a specific post
 router.post('/posts/:id/comments', async (req, res) => {

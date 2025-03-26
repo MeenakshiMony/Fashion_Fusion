@@ -1,6 +1,8 @@
-import React from "react";
-import '../styles/DisplayPosts.css';
-import { Heart } from 'lucide-react';
+import React, { useEffect, useState } from "react";
+import "../styles/DisplayPosts.css";
+import { Heart } from "lucide-react";
+
+const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2MB limit
 
 const Post = ({ username, avatar, content, imageUrl, likes, comments }) => {
   return (
@@ -13,7 +15,6 @@ const Post = ({ username, avatar, content, imageUrl, likes, comments }) => {
       {/* Post Content */}
       <div className="post-content">
         {imageUrl && <img src={imageUrl} alt="Post" className="post-image" />}
-        
       </div>
 
       {/* Post Interactions */}
@@ -28,20 +29,25 @@ const Post = ({ username, avatar, content, imageUrl, likes, comments }) => {
   );
 };
 
-const DisplayPosts = ({ posts ,avatar, username}) => {
+const DisplayPosts = ({ posts, avatar, username }) => {
+
   return (
     <div className="display-posts">
-      {posts.map((post, index) => (
-        <Post
-          key={index}
-          username={username}
-          avatar={avatar}
-          content={post.content}
-          imageUrl={post.imageUrl}
-          likes={post.likes}
-          comments={post.comments}
-        />
-      ))}
+      {posts.length === 0 ? (
+        <p>No posts yet. Be the first to share something!</p>
+      ) : (
+        posts.map((post) => (
+          <Post
+            key={post._id} // Ensure unique key
+            username={username}
+            avatar={avatar}
+            content={post.content}
+            imageUrl={post.imageUrl}
+            likes={post.likes}
+            comments={post.comments}
+          />
+        ))
+      )}
     </div>
   );
 };

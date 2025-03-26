@@ -1,36 +1,40 @@
 import React, { useState } from "react";
 import axios from "axios";
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownButton from 'react-bootstrap/DropdownButton';
 import "../styles/AddPost.css";
 
 const AddPost = ({ userId, onClose }) => {
   const [formData, setFormData] = useState({
     content: "",
+    imageFile: null,
     imageUrl: "",
-    tags: "",
-    fashionCategory: "",
+    fashionCategory: "", // Ensure this starts empty
   });
+
   const [state, setState] = useState({
     error: "",
     success: "",
-    dropdownOpen: false,
+    loading: false,
   });
+
+  // Allowed fashion categories
+  const fashionCategories = ["Outfit", "Accessory", "StylingTips"];
 
   // Handle file upload
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        setState((prev) => ({ ...prev, error: "File size must be less than 5MB" }));
+      if (file.size > 5 * 1024 * 1024) {
+        setState({ ...state, error: "File size must be less than 5MB" });
+        return;
+      }
+      if (!file.type.startsWith("image/")) {
+        setState({ ...state, error: "Only image files are allowed" });
         return;
       }
 
-      // Validate file type (only images)
-      if (!file.type.startsWith("image/")) {
-        setState((prev) => ({ ...prev, error: "Only image files are allowed" }));
-        return;
-      }
+      setFormData({ ...formData, imageFile: file });
+
+      // Preview the image
       const reader = new FileReader();
       reader.onloadend = () => {
         setFormData((prev) => ({ ...prev, imageUrl: reader.result }));
@@ -39,39 +43,55 @@ const AddPost = ({ userId, onClose }) => {
     }
   };
 
-  const handleToggle = (isOpen) => {
-    setState((prev) => ({ ...prev, dropdownOpen: isOpen }));
-  };
-
-  const handleFashionCategorySelect = (category) => {
-    setFormData((prev) => ({ ...prev, fashionCategory: category }));
-    setState((prev) => ({ ...prev, dropdownOpen: false }));
-  };
-
+  // Handle form submission
   const handleAddPost = async (e) => {
     e.preventDefault();
 
+    // Validation checks
     if (!formData.content.trim()) {
-      setState((prev) => ({ ...prev, error: "Content cannot be empty" }));
+      setState({ ...state, error: "Content cannot be empty" });
+      return;
+    }
+    if (!fashionCategories.includes(formData.fashionCategory)) {
+      setState({ ...state, error: "Invalid fashion category. Choose from Outfit, Accessory, or StylingTips." });
       return;
     }
 
+    setState({ ...state, loading: true, error: "", success: "" });
+
     try {
-      const response = await axios.post("/addpost", {
-        userId,
-        ...formData,
-        tags: formData.tags.split(",").map((tag) => tag.trim()),
+      const postData = new FormData();
+      postData.append("userId", userId);
+      postData.append("content", formData.content);
+      postData.append("fashionCategory", formData.fashionCategory);
+
+      if (formData.imageFile) {
+        postData.append("image", formData.imageFile);
+      }
+
+      // Log FormData contents
+    console.log("Post Data:");
+    for (let [key, value] of postData.entries()) {
+      console.log(`${key}:`, value);
+    }
+      await axios.post("http://localhost:8080/addpost", postData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
-      setState((prev) => ({ ...prev, success: "Post added successfully!", error: "" }));
+
+      setState({ ...state, success: "Post added successfully!", error: "", loading: false });
+
+      
+      // Reset form after successful submission
       setFormData({
         content: "",
+        imageFile: null,
         imageUrl: "",
-        tags: "",
         fashionCategory: "",
       });
+
       onClose();
     } catch (error) {
-      setState((prev) => ({ ...prev, error: "Error creating post. Please try again.", success: "" }));
+      setState({ ...state, error: "Error creating post. Please try again.", success: "", loading: false });
     }
   };
 
@@ -86,7 +106,7 @@ const AddPost = ({ userId, onClose }) => {
             <textarea
               placeholder="What's on your mind?"
               value={formData.content}
-              onChange={(e) => setFormData((prev) => ({ ...prev, content: e.target.value }))}
+              onChange={(e) => setFormData({ ...formData, content: e.target.value })}
               aria-label="Post Content"
             />
           </div>
@@ -94,46 +114,30 @@ const AddPost = ({ userId, onClose }) => {
           {/* Image Upload */}
           <div className="input-group">
             <label>Upload Image</label>
-            <input
-              type="file"
-              onChange={handleFileChange}
-              accept="image/*"
-              aria-label="Upload Image"
-            />
+            <input type="file" onChange={handleFileChange} accept="image/*" aria-label="Upload Image" />
             {formData.imageUrl && <img src={formData.imageUrl} alt="Preview" className="image-preview" />}
           </div>
 
-          {/* Tags Input */}
-          <div className="input-group">
-            <label>Tags (comma-separated)</label>
-            <input
-              type="text"
-              placeholder="e.g., fashion, outfit"
-              value={formData.tags}
-              onChange={(e) => setFormData((prev) => ({ ...prev, tags: e.target.value }))}
-              aria-label="Post Tags"
-            />
-          </div>
-
           {/* Fashion Category Dropdown */}
-          <div className="input-group dropdown-button-wrapper">
+          <div className="input-group">
             <label>Fashion Category</label>
-            <DropdownButton
-              id="dropdown-fashion-category"
-              title={formData.fashionCategory || "Select Category"}
-              variant="outline-secondary"
-              show={state.dropdownOpen}
-              onToggle={handleToggle}
-              aria-label="Select Fashion Category"
+            <select
+              value={formData.fashionCategory}
+              onChange={(e) => setFormData({ ...formData, fashionCategory: e.target.value })}
             >
-              <Dropdown.Item eventKey="Outfit" onClick={() => handleFashionCategorySelect("Outfit")}>Outfit</Dropdown.Item>
-              <Dropdown.Item eventKey="Accessories" onClick={() => handleFashionCategorySelect("Accessories")}>Accessories</Dropdown.Item>
-              <Dropdown.Item eventKey="Shoes" onClick={() => handleFashionCategorySelect("Shoes")}>Shoes</Dropdown.Item>
-            </DropdownButton>
+              <option value="">Select a category</option>
+              {fashionCategories.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Submit Button */}
-          <button type="submit" className="submit-button" aria-label="Submit Post">Post</button>
+          <button type="submit" className="submit-button" disabled={state.loading}>
+            {state.loading ? "Posting..." : "Post"}
+          </button>
         </form>
 
         {/* Error and Success Messages */}
@@ -141,7 +145,9 @@ const AddPost = ({ userId, onClose }) => {
         {state.success && <p className="success">{state.success}</p>}
 
         {/* Close Button */}
-        <button className="close-button" onClick={onClose} aria-label="Close Modal">Close</button>
+        <button className="close-button" onClick={() => window.location.reload()} aria-label="Close Modal">
+          Close
+        </button>
       </div>
     </div>
   );

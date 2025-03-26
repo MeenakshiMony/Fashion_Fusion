@@ -11,6 +11,7 @@ const postSchema = new mongoose.Schema({
   tags: [{ type: String }],
   fashionCategory: { type: String, enum: ['Outfit', 'Accessory', 'StylingTips'], default: 'Outfit' },
   isPinned: { type: Boolean, default: false },
+  savedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] 
 }, { timestamps: true });
 
 const PostModel = mongoose.model('Post', postSchema);

@@ -18,6 +18,7 @@ const ProfilePage = () => {
     followingCount: 0,
     posts: [],
   });
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("posts"); // State to track active tab
@@ -39,53 +40,74 @@ const ProfilePage = () => {
 
   const navigate = useNavigate(); // React Router's navigation hook
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      const token = localStorage.getItem("authToken");
+  
+  const fetchProfile = async () => {
+    const token = localStorage.getItem("authToken");
 
-      if (!token) {
+    if (!token) {
+      setError("Unauthorized. Please log in.");
+      setLoading(false);
+      navigate("/login"); // Redirect to login page if no token
+      return;
+    }
+
+    try {
+      const decodedToken = jwtDecode(token);
+      const userId = decodedToken.userId;
+
+      const response = await axios.get(
+        `http://localhost:8080/users/${userId}`
+      );
+
+      const user = response.data.user;
+
+      console.log(response.data.user);
+      setProfile({
+        id: userId,
+        name: user.username,
+        email: user.email,
+        avatar: user.avatar,
+        followersCount: user.followersCount,
+        followingCount: user.followingCount,
+        posts: user.posts,
+        password: user.password,
+      });
+
+      setLoading(false);
+    } catch (error) {
+      if (error.response && error.response.status === 401) {
         setError("Unauthorized. Please log in.");
-        setLoading(false);
-        navigate("/login"); // Redirect to login page if no token
-        return;
+        navigate("/login");
+      } else {
+        setError("Failed to fetch profile data.");
       }
+      setLoading(false);
+    }
+  };
 
-      try {
-        const decodedToken = jwtDecode(token);
-        const userId = decodedToken.userId;
-
-        const response = await axios.get(
-          `http://localhost:8080/users/${userId}`
-        );
-
-        const user = response.data.user;
-
-        console.log(response.data.user);
-        setProfile({
-          id: userId,
-          name: user.username,
-          email: user.email,
-          avatar: user.avatar,
-          followersCount: user.followersCount,
-          followingCount: user.followingCount,
-          posts: user.posts,
-          password: user.password,
-        });
-
-        setLoading(false);
-      } catch (error) {
-        if (error.response && error.response.status === 401) {
-          setError("Unauthorized. Please log in.");
-          navigate("/login");
-        } else {
-          setError("Failed to fetch profile data.");
-        }
-        setLoading(false);
-      }
-    };
-
+  useEffect(() => {
     fetchProfile();
   }, [navigate]);
+
+  useEffect(() => {
+    fetchProfile();
+  }, [profile.id]);
+
+  const fetchPosts = async () => {
+    try {
+      const { data } = await axios.get(`http://localhost:8080/posts/${profile.id}`);
+      setPosts(data);
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>{error}</p>;
 
   return (
     <div className="profile-page">
@@ -100,7 +122,7 @@ const ProfilePage = () => {
         <div className="profile-details">
           <div className="profile-image">
             <img
-              src={profile.avatar || "https://via.placeholder.com/100"}
+              src={profile.avatar || "https://www.freepik.com/icon/user-avatar_5561278"}
               alt={`${profile.name}'s avatar`}
               className="profile-avatar"
             />
@@ -157,18 +179,22 @@ const ProfilePage = () => {
       {/* Tab Content */}
       <div className="tab-content">
         {activeTab === "posts" && (
-          <DisplayPosts posts={profile.posts || posts} avatar={profile.avatar} username={profile.name}/>
+          <DisplayPosts posts={profile.posts } avatar={profile.avatar} username={profile.name}/>
         )}
 
         {activeTab === "addPost" && (
           <div className="add-post-section">
-            <AddPost userId={profile.id} onClose={() => setActiveTab("posts")} />
+            <AddPost
+              userId={profile.id}
+              onClose={() => { setShowAddPost(false); fetchPosts(); }} 
+            />
           </div>
         )}
 
+
         {activeTab === "searchUsers" && (
           <div className="search-users-section">
-            <SearchUsers />
+            <SearchUsers currentUserId={profile.id} refreshProfile={fetchProfile}/>
           </div>
         )}
 
