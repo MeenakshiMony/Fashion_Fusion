@@ -5,9 +5,11 @@ import { jwtDecode } from "jwt-decode";
 import "../styles/ProfilePage.css";
 import { Users, Image, Search } from "lucide-react"
 
+
 import AddPost from "./AddPost";
 import SearchUsers from "./SearchUsers";
 import DisplayPosts from "./DisplayPosts";
+import DeepARTryOn from "./DeepAR";
 
 const ProfilePage = () => {
   const [profile, setProfile] = useState({
@@ -143,6 +145,10 @@ const ProfilePage = () => {
           </p>
         </div>
       </div>
+
+      <button
+        onClick={() => navigate("/deepar")}
+      />
 
       {/* Tab Navigation */}
       <div className="tab-navigation">

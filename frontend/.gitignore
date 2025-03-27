@@ -36,3 +36,4 @@ yarn-error.log*
 /src/components/OldHomePage.jsx
 /src/styles/OldHomePage.css
 /src/styles/Oldtryonpage.css
+.vercel

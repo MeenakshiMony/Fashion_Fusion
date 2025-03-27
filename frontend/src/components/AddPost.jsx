@@ -46,54 +46,76 @@ const AddPost = ({ userId, onClose }) => {
   // Handle form submission
   const handleAddPost = async (e) => {
     e.preventDefault();
-
+  
     // Validation checks
     if (!formData.content.trim()) {
       setState({ ...state, error: "Content cannot be empty" });
       return;
     }
     if (!fashionCategories.includes(formData.fashionCategory)) {
-      setState({ ...state, error: "Invalid fashion category. Choose from Outfit, Accessory, or StylingTips." });
+      setState({
+        ...state,
+        error: "Invalid fashion category. Choose from Outfit, Accessory, or StylingTips.",
+      });
       return;
     }
-
+  
     setState({ ...state, loading: true, error: "", success: "" });
-
+  
     try {
       const postData = new FormData();
       postData.append("userId", userId);
       postData.append("content", formData.content);
       postData.append("fashionCategory", formData.fashionCategory);
-
+  
       if (formData.imageFile) {
         postData.append("image", formData.imageFile);
       }
-
+  
       // Log FormData contents
-    console.log("Post Data:");
-    for (let [key, value] of postData.entries()) {
-      console.log(`${key}:`, value);
-    }
-      await axios.post("http://localhost:8080/addpost", postData, {
+      console.log("Post Data:");
+      for (let [key, value] of postData.entries()) {
+        console.log(`${key}:`, value);
+      }
+  
+      // ✅ FIX: Save response properly
+      const response = await axios.post("http://localhost:8080/addpost", postData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-
-      setState({ ...state, success: "Post added successfully!", error: "", loading: false });
-
-      
-      // Reset form after successful submission
+  
+      console.log("Server Response:", response.data);
+  
+      // ✅ Corrected: Use response.data
+      if (response.data.message === "Post added successfully!") {
+        setState((prev) => ({
+          ...prev,
+          success: response.data.message,
+          error: "",
+          loading: false,
+        }));
+      }
+  
+      // ✅ Reset form after successful submission
       setFormData({
         content: "",
         imageFile: null,
         imageUrl: "",
         fashionCategory: "",
       });
-
-      onClose();
+  
+      onClose(); // Close modal if success
     } catch (error) {
-      setState({ ...state, error: "Error creating post. Please try again.", success: "", loading: false });
+      console.error("Post Error:", error.response ? error.response.data : error.message);
+  
+      setState((prev) => ({
+        ...prev,
+        error: error.response?.data?.message || "Error creating post. Please try again.",
+        success: "",
+        loading: false,
+      }));
     }
   };
+  
 
   return (
     <div className="add-post-modal">
