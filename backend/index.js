@@ -4,6 +4,7 @@ import cors from 'cors';
 import fs from 'fs';
 import path from 'path';
 import dotenv from 'dotenv';
+import multer from 'multer';
 dotenv.config();
 
 import { populateDatabase } from './scripts/dbinit';  // Import populateDatabase function
@@ -11,14 +12,15 @@ import commentRoutes from './routes/CommentRoutes';
 import postRoutes from './routes/PostRoutes';
 import userRoutes from './routes/auth'; 
 import eyewearRoutes from './routes/eyewears'; 
+import { createDeepAREffectFromImage } from './generateDeepAREffects';
 
 const app = express();
 
 //Use CORS middleware for all routes
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://192.168.1.6:5173'], // Allow requests only from this frontend URL
+  origin: ['http://localhost:5173', 'http://192.168.1.6:5173','https://fashion-fusion-orpin.vercel.app','https://d019-111-92-45-20.ngrok-free.app' ], // Allow requests only from this frontend URL
   credentials: true,  // If your frontend uses cookies or authentication tokens
-  methods: ["GET", "POST", "PUT", "DELETE"], 
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"], // Allowed headers
 }));
 
@@ -82,5 +84,26 @@ app.get('/models', (req, res) => {
     res.json(modelFiles); // Send the merged list of models
   } catch (error) {
     res.status(500).json({ error: 'Failed to load models' });
+  }
+});
+
+app.use('/output', express.static(path.join(__dirname, 'output')));
+
+const storage = multer.diskStorage({
+  destination: 'uploads/',
+  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname)),
+});
+
+const upload = multer({ storage });
+
+app.post('/upload', upload.single('outfit'), async (req, res) => {
+  try {
+    const imagePath = req.file.path;
+    const outputPath = `output/${Date.now()}.deepar`;
+
+    await createDeepAREffectFromImage(imagePath, outputPath);
+    res.json({ deeparFile: outputPath });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });

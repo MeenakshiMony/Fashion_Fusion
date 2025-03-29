@@ -19,20 +19,28 @@ import '@tensorflow/tfjs-backend-webgl';
 const Model = ({ data, landmarks, worldLandmarks, width, height }) => {
     const { scene } = useGLTF(data.url);
     const groupRef = useRef();
+    const [scalingRatios, setScalingRatios] = useState({
+        width: null,
+        height: null,
+      });
+      const previousRatios = useRef({ width: null, height: null });
+      groupRef.current.position.set(0, 0, 0);
+
     const currentQuaternion = useRef(new THREE.Quaternion());
     const bodyForward = useRef(new THREE.Vector3());
   
     useEffect(() => {
       if (scene) {
-        console.log("Loaded GLTF Scene:", scene);
+        console.log("Loaded GLTF Scene:", scene); //consoling 3D model properties
         scene.traverse((obj) => {
-          if (obj.isBone) {
-            console.log("Bone Name:", obj.name);
+          if (obj.isBone) {                       //checking whether bone is present and console it if present
+            console.log("Bone Name:", obj.name); 
           }
         });
       }
     }, [scene]);
 
+    //Listing body landmarks detected by mediapipe pose landmarker task
     const boneMapping = {
         nose: 0,
         left_eye_inner: 1,
@@ -75,49 +83,112 @@ const Model = ({ data, landmarks, worldLandmarks, width, height }) => {
         console.warn("⚠️ Scene or landmarks missing!");
         return;
       }
-  
-    // 1. Get 3D shoulder landmarks
-    const leftShoulder3D = worldLandmarks[11];
-    const rightShoulder3D = worldLandmarks[12];
-    const leftHip3D = worldLandmarks[23];
-    const rightHip3D = worldLandmarks[24];
 
-    // 2. Calculate 3D body forward vector
-    const shoulderToShoulder = new THREE.Vector3(
-        rightShoulder3D.x - leftShoulder3D.x,
-        rightShoulder3D.y - leftShoulder3D.y,
-        rightShoulder3D.z - leftShoulder3D.z
+    const model_shoulder_width = 27.857;
+    const model_hipwidth = 15.224;
+    const model_torso_length = 10.08;
+
+    // Function to calculate Euclidean distance (2D only)
+    const calculateDistance = (x1, y1, x2, y2) => {
+        return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+    };
+    
+    // Function to find the midpoint between two landmarks
+    const findMidpoint = (x1, y1, x2, y2) => {
+        return {
+        x: (x1 + x2) / 2,
+        y: (y1 + y2) / 2,
+        };
+    };
+
+    // 1. Extract landmarks and convert directly to pixel coordinates
+    const leftShoulder = {
+        x: landmarks[11].x * width,
+        y: landmarks[11].y * height,
+    };
+    const rightShoulder = {
+        x: landmarks[12].x * width,
+        y: landmarks[12].y * height,
+    };
+    const leftHip = {
+        x: landmarks[23].x * width,
+        y: landmarks[23].y * height,
+    };
+    const rightHip = {
+        x: landmarks[24].x * width,
+        y: landmarks[24].y * height,
+    };
+
+    const user_shoulderWidth = calculateDistance(
+        leftShoulder.x,
+        leftShoulder.y,
+        rightShoulder.x,
+        rightShoulder.y
+      );
+
+      const user_hipWidth = calculateDistance(
+        leftHip.x,
+        leftHip.y,
+        rightHip.x,
+        rightHip.y
+      );
+
+    // Find midpoints of shoulders and hips
+    const user_shoulderMidpoint = findMidpoint(
+        leftShoulder.x,
+        leftShoulder.y,
+        rightShoulder.x,
+        rightShoulder.y
+      );
+
+      const user_hipMidpoint = findMidpoint(
+        leftHip.x,
+        leftHip.y,
+        rightHip.x,
+        rightHip.y
+      );
+
+      // Calculate torso length (distance between shoulder midpoint and hip midpoint)
+      const user_torsolength = calculateDistance(
+        user_shoulderMidpoint.x,
+        user_shoulderMidpoint.y,
+        user_hipMidpoint.x,
+        user_hipMidpoint.y
+      );
+
+      // Compute torso midpoint (average of shoulder and hip midpoints)
+    const user_torsoMidpoint = findMidpoint(
+        user_shoulderMidpoint.x,
+        user_shoulderMidpoint.y,
+        user_hipMidpoint.x,
+        user_hipMidpoint.y
     );
+    // Position the model based on the torso midpoint
+    groupRef.current.position.set(user_torsoMidpoint.x, user_torsoMidpoint.y, 0);
 
-    const hipToHip = new THREE.Vector3(
-        rightHip3D.x - leftHip3D.x,
-        rightHip3D.y - leftHip3D.y,
-        rightHip3D.z - leftHip3D.z
-    );
+      // Compute scaling ratios
+      const widthScalingRatio = user_shoulderWidth / model_shoulder_width; 
+      const heightScalingRatio = user_torsolength / model_torso_length;  
 
-    // 3. Calculate body forward (cross product)
-    const bodyUp = new THREE.Vector3(0, 1, 0); // Y-up convention
-    bodyForward.current.crossVectors(shoulderToShoulder, bodyUp).normalize();
+      // Update state with calculated ratios
+      setScalingRatios({
+        width: widthScalingRatio,
+        height: heightScalingRatio,
+      });
 
-    // 4. Calculate rotation
-    const targetQuaternion = new THREE.Quaternion();
-    targetQuaternion.setFromUnitVectors(
-        new THREE.Vector3(0, 0, -1), // Model's forward
-        bodyForward.current
-    );
+      if (
+        previousRatios.current.width !== widthScalingRatio ||
+        previousRatios.current.height !== heightScalingRatio
+      ) {
+        groupRef.current.scale.set(widthScalingRatio , heightScalingRatio , 1);
+        previousRatios.current = { width: widthScalingRatio, height: heightScalingRatio };
+      }
 
-    // 5. Smooth rotation
-    currentQuaternion.current.slerp(targetQuaternion, 0.1);
-
-    // 6. Apply transformations
-    groupRef.current.position.set(
-        (landmarks[23].x - 0.5) * 2, // X
-        (0.5 - landmarks[23].y) * 2, // Y (flipped)
-        -Math.abs(leftShoulder3D.z) * 1.5 // Z (into screen)
+      console.log(
+        `Model positioned at torso midpoint (${user_torsoMidpoint.x}, ${user_torsoMidpoint.y}).`,
+        `Width Scaling Ratio: ${widthScalingRatio}, Height Scaling Ratio: ${heightScalingRatio}`
       );
       
-    groupRef.current.quaternion.copy(currentQuaternion.current);
-    groupRef.current.scale.setScalar(shoulderToShoulder.length() / 0.3);
 
     });
 
@@ -410,7 +481,15 @@ const TryOnPage = () => {
                     }}                  
                 />
                 <canvas ref={canvasRef} className="pose-canvas" style={{ display: cameraOn ? 'block' : 'none' }} />
-                <Canvas className="threejs-canvas" style={{display: cameraOn ? 'block' : 'none'}} >
+                <Canvas
+                    className="threejs-canvas"
+                    style={{
+                        width: "100vw", // Full viewport width
+                        height: "100vh", // Full viewport height
+                        display: "block", // Prevent scrollbars
+                    }}
+                    camera={{ position: [0, 2, 10], fov: 75 }} // Adjust camera as needed
+                    >
                     <ambientLight intensity={0.5} />
                     <directionalLight position={[10,10,10]} intensity={0.8} />
                     <OrbitControls />

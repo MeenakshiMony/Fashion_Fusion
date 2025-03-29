@@ -5,15 +5,16 @@ import * as DeepAR from 'deepar';
 const DeepARTryOn = () => {
   const canvasRef = useRef(null);
   const deepARRef = useRef(null);
-  const initializedRef = useRef(false); // Track initialization state
+  const initializedRef = useRef(false);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [deeparFile, setDeepARFile] = useState(null);
+  const fileRef = useRef();
 
   useEffect(() => {
     let isMounted = true;
 
     const initializeDeepAR = async () => {
-      // Skip if already initialized or initializing
       if (initializedRef.current || deepARRef.current) {
         return;
       }
@@ -21,39 +22,42 @@ const DeepARTryOn = () => {
       try {
         setLoading(true);
         setError(null);
-        initializedRef.current = true; // Mark as initializing
+        initializedRef.current = true;
 
-        console.log('Initializing DeepAR...');
-        
+        // Check if canvas is available
+        if (!canvasRef.current) {
+          throw new Error('Canvas element not available');
+        }
+
+        // Initialize with only necessary features
         deepARRef.current = await DeepAR.initialize({
-          licenseKey: '46e03ebdd90a79c6ec898bef832509d632992d149df117794bfb94f5047a5777337f1f17bf15bca7',
+          licenseKey: 'your-license-key',
           canvas: canvasRef.current,
           deeparWasmPath: 'https://cdn.jsdelivr.net/npm/deepar@5.4.0/wasm/deepar.wasm',
-          segmentationConfig: {
-            modelPath: 'https://cdn.jsdelivr.net/npm/deepar@5.4.0/models/segmentation/segmentation-160x160-opt.bin'
-          },
           faceTrackingConfig: {
             modelPath: 'https://cdn.jsdelivr.net/npm/deepar@5.4.0/models/face/models-ffd-lite/face-tracker-model.bin'
           },
-          effect: 'https://cdn.jsdelivr.net/npm/deepar@5.4.0/effects/aviators'
+          effect: 'https://cdn.jsdelivr.net/npm/deepar@5.4.0/effects/aviators' //ray-ban-wayfarer.deepar
         });
 
-        console.log('DeepAR initialized, starting camera...');
-        await deepARRef.current.startCamera();
+        // Handle camera permissions more gracefully
+        try {
+          await deepARRef.current.startCamera();
+        } catch (cameraError) {
+          throw new Error('Camera access denied or not available');
+        }
 
         deepARRef.current.callbacks.onFaceVisibilityChanged = (visible) => {
           console.log(visible ? "Face visible!" : "Face not visible!");
         };
 
-        if (isMounted) {
-          setLoading(false);
-        }
+        setLoading(false);
       } catch (err) {
-        console.error('DeepAR initialization error:', err);
+        console.error('DeepAR error:', err);
         if (isMounted) {
-          setError(err.message);
+          setError(err.message || 'Failed to initialize AR experience');
           setLoading(false);
-          initializedRef.current = false; // Reset on error
+          initializedRef.current = false;
         }
       }
     };
@@ -63,23 +67,20 @@ const DeepARTryOn = () => {
     return () => {
       isMounted = false;
       
-      // Only cleanup if we successfully initialized
       if (deepARRef.current) {
-        console.log('Cleaning up DeepAR...');
         deepARRef.current.dispose()
           .then(() => {
-            console.log('DeepAR disposed successfully');
             deepARRef.current = null;
             initializedRef.current = false;
           })
           .catch(e => {
-            console.warn('DeepAR cleanup error:', e);
-            deepARRef.current = null;
-            initializedRef.current = false;
+            console.warn('Cleanup error:', e);
           });
       }
     };
-  }, []); // Empty dependency array means this runs once on mount
+  }, []); // Empty array is correct for mount-only effect
+
+  
 
   return (
     <div className="deepar-container">
@@ -94,15 +95,19 @@ const DeepARTryOn = () => {
         <div className="error-overlay">
           <h3>Error Loading AR</h3>
           <p>{error}</p>
-          <p>Please check camera permissions and try refreshing.</p>
+          <button onClick={() => window.location.reload()}>Try Again</button>
         </div>
       )}
 
       <canvas 
         ref={canvasRef} 
         id="deepar-canvas"
-        style={{ display: loading || error ? 'none' : 'block' }}
+        style={{ 
+          display: loading || error ? 'none' : 'block',
+
+        }}
       />
+     
     </div>
   );
 };
