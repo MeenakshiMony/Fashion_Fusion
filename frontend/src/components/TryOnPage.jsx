@@ -118,6 +118,7 @@ const VirtualTryOn = () => {
             if (tryOnMode === "upperbody") {
               placeUpperBodyItem(ctx, keypoints, outfitImg);
             } else if (tryOnMode === "eyewear") {
+              console.log(`keypoints:`, keypoints);
               placeEyewearItem(ctx, keypoints, outfitImg);
             } else if (tryOnMode === "lowerbody") {
               placeLowerBodyItem(ctx, keypoints, outfitImg);
@@ -164,19 +165,22 @@ const VirtualTryOn = () => {
   const placeEyewearItem = (ctx, keypoints, img) => {
     const leftEye = keypoints[1];
     const rightEye = keypoints[2];
-    const nose = keypoints[0];
+    
 
-    if (leftEye.score > 0.5 && rightEye.score > 0.5 && nose.score > 0.5) {
+    if (leftEye.score > 0.5 && rightEye.score > 0.5) {
       const eyeDistance = Math.sqrt(
         Math.pow(rightEye.x - leftEye.x, 2) + Math.pow(rightEye.y - leftEye.y, 2)
       );
 
-      const scaleFactor = eyeDistance / (img.width * 0.8);
+      const scaleFactor = eyeDistance / (img.width * 0.4);
       const newWidth = img.width * scaleFactor;
       const newHeight = img.height * scaleFactor;
 
-      const xPos = (leftEye.x + rightEye.x) / 2 - newWidth / 2;
-      const yPos = nose.y - newHeight * 0.7;
+      const midPointX = (leftEye.x + rightEye.x) / 2;
+      const midPointY = (leftEye.y + rightEye.y) / 2;
+
+      const xPos = midPointX - newWidth / 2;
+      const yPos = midPointY - newHeight / 2;
 
       ctx.drawImage(img, xPos, yPos, newWidth, newHeight);
     }
