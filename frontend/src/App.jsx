@@ -10,7 +10,6 @@ import CommunityPage from './components/CommunityPage';
 import ProfilePage from './components/ProfilePage';
 import LoginPage from './components/LoginPage';
 import SignupPage from './components/SignupPage';
-import DeepARTryOn from './components/DeepAR';
 import './styles/App.css';
 
 const PrivateRoute = ({children}) => {
@@ -31,8 +30,7 @@ function App() {
 
           {/* Use PrivateRoute for protected routes */}
           <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/deepar" element={<DeepARTryOn />} />
-
+          
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
 
