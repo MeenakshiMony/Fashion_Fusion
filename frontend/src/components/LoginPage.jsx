@@ -41,7 +41,7 @@ const LoginPage = () => {
       setSuccess(response.data.message || "Login successful!");
       setError("");
 
-      setTimeout(() => navigate('/profile'), 1000);
+      setTimeout(() => navigate('/'), 1000);
     } catch (err) {
       setError(
         err.response?.data?.message ||

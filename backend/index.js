@@ -15,6 +15,8 @@ import { createDeepAREffectFromImage } from './generateDeepAREffects';
 
 const app = express();
 
+app.options('*', cors());
+
 //Use CORS middleware for all routes
 app.use(cors({
   origin: ['http://localhost:5173', 'http://192.168.1.6:5173'], // Allow requests only from this frontend URL

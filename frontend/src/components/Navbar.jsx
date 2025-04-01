@@ -11,7 +11,7 @@ const Navbar = () => {
   const location = useLocation();
   
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('authToken');
     setToken(token);
     console.log("Token: ", token);
   }, [location]); // Ensure token is checked on each navigation
@@ -20,9 +20,12 @@ const Navbar = () => {
 
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    localStorage.removeItem('authToken');
     setToken(null);
+    // Add a slight delay to ensure state is updated before navigation
+  setTimeout(() => {
     navigate('/login');
+  }, 100);
   };
 
   const toggleMenu = () => {
