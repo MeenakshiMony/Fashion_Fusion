@@ -10,7 +10,6 @@ import AddPost from "./AddPost";
 import SearchUsers from "./SearchUsers";
 import DisplayPosts from "./DisplayPosts";
 
-
 const ProfilePage = () => {
   const [profile, setProfile] = useState({
     name: "",
@@ -24,21 +23,7 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("posts"); // State to track active tab
-
-  const [savedOutfits] = useState([
-    {
-      id: 1,
-      imageUrl:
-        "https://images.pexels.com/photos/3869692/pexels-photo-3869692.jpeg?auto=compress&cs=tinysrgb&w=600",
-      description: "Summer Outfit",
-    },
-    {
-      id: 2,
-      imageUrl:
-        "https://images.pexels.com/photos/1868735/pexels-photo-1868735.jpeg?auto=compress&cs=tinysrgb&w=600",
-      description: "Winter Jacket",
-    },
-  ]);
+  const [posts, setPosts] = useState([]);
 
   const navigate = useNavigate(); // React Router's navigation hook
 
@@ -89,11 +74,20 @@ const ProfilePage = () => {
 
   useEffect(() => {
     fetchProfile();
+    fetchPosts();
   }, [navigate]);
 
   useEffect(() => {
     fetchProfile();
+    fetchPosts();
   }, [profile.id]);
+
+  useEffect(() => {
+    if (activeTab === "posts") {
+      fetchPosts();
+      fetchProfile();
+    }
+  }, [activeTab]);
 
   const fetchPosts = async () => {
     try {
@@ -169,26 +163,19 @@ const ProfilePage = () => {
           <Search />
           Search Users
         </button>
-        <button
-          className={`tab-button ${activeTab === "savedOutfits" ? "active" : ""}`}
-          onClick={() => setActiveTab("savedOutfits")}
-        >
-          <Image />
-          saved Outfits
-        </button>
       </div>
 
       {/* Tab Content */}
       <div className="tab-content">
         {activeTab === "posts" && (
-          <DisplayPosts posts={profile.posts } avatar={profile.avatar} username={profile.name}/>
+          <DisplayPosts posts={posts } avatar={profile.avatar} username={profile.name}/>
         )}
 
         {activeTab === "addPost" && (
           <div className="add-post-section">
             <AddPost
               userId={profile.id}
-              onClose={() => { setShowAddPost(false); fetchPosts(); }} 
+              onClose={() => { fetchPosts(); setActiveTab("posts"); fetchProfile() }}
             />
           </div>
         )}
@@ -200,19 +187,6 @@ const ProfilePage = () => {
           </div>
         )}
 
-        {activeTab === "savedOutfits" && (
-          <section className="saved-outfits">
-          <h2>Saved Outfits</h2>
-          <div className="outfit-grid">
-            {savedOutfits.map((outfit) => (
-              <div key={outfit.id} className="outfit-card">
-                <img src={outfit.imageUrl} alt={outfit.description} />
-                <p>{outfit.description}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-        )}
       </div>
       
     </div>

@@ -28,10 +28,10 @@ router.get('/posts', async (req, res) => {
 });
 
 //fetch post by id
-router.get('/posts/:id', async (req,res) => {
+router.get('/posts/:userId', async (req,res) => {
   try{
-    const { id } = req.params;
-    const post = await PostModel.findById(id).sort({ createdAt: -1 });  // Filter posts by userId
+    const { userId } = req.params;
+    const post = await PostModel.find({userId}).sort({ createdAt: -1 });  // Filter posts by userId
 
     if (!post) {
       return res.status(404).json({ message: "Post not found" });

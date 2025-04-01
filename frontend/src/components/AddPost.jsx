@@ -7,7 +7,7 @@ const AddPost = ({ userId, onClose }) => {
     content: "",
     imageFile: null,
     imageUrl: "",
-    fashionCategory: "", // Ensure this starts empty
+    fashionCategory: "",
   });
 
   const [state, setState] = useState({
@@ -16,10 +16,8 @@ const AddPost = ({ userId, onClose }) => {
     loading: false,
   });
 
-  // Allowed fashion categories
   const fashionCategories = ["Outfit", "Accessory", "StylingTips"];
 
-  // Handle file upload
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -34,7 +32,6 @@ const AddPost = ({ userId, onClose }) => {
 
       setFormData({ ...formData, imageFile: file });
 
-      // Preview the image
       const reader = new FileReader();
       reader.onloadend = () => {
         setFormData((prev) => ({ ...prev, imageUrl: reader.result }));
@@ -43,86 +40,54 @@ const AddPost = ({ userId, onClose }) => {
     }
   };
 
-  // Handle form submission
   const handleAddPost = async (e) => {
     e.preventDefault();
-  
-    // Validation checks
+
     if (!formData.content.trim()) {
       setState({ ...state, error: "Content cannot be empty" });
       return;
     }
     if (!fashionCategories.includes(formData.fashionCategory)) {
-      setState({
-        ...state,
-        error: "Invalid fashion category. Choose from Outfit, Accessory, or StylingTips.",
-      });
+      setState({ ...state, error: "Invalid fashion category. Choose from Outfit, Accessory, or StylingTips." });
       return;
     }
-  
+
     setState({ ...state, loading: true, error: "", success: "" });
-  
+
     try {
       const postData = new FormData();
       postData.append("userId", userId);
       postData.append("content", formData.content);
       postData.append("fashionCategory", formData.fashionCategory);
-  
-      if (formData.imageFile) {
-        postData.append("image", formData.imageFile);
-      }
-  
-      // Log FormData contents
-      console.log("Post Data:");
-      for (let [key, value] of postData.entries()) {
-        console.log(`${key}:`, value);
-      }
-  
-      // ✅ FIX: Save response properly
+      if (formData.imageFile) postData.append("image", formData.imageFile);
+
+      console.log("Post Data:", Object.fromEntries(postData.entries()));
+
       const response = await axios.post("http://localhost:8080/addpost", postData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-  
+
       console.log("Server Response:", response.data);
-  
-      // ✅ Corrected: Use response.data
+
       if (response.data.message === "Post added successfully!") {
-        setState((prev) => ({
-          ...prev,
-          success: response.data.message,
-          error: "",
-          loading: false,
-        }));
+        setState((prev) => ({ ...prev, success: response.data.message, error: "", loading: false }));
+        setFormData({ content: "", imageFile: null, imageUrl: "", fashionCategory: "" });
+
+        if (typeof onClose === "function") {
+          onClose();
+        }
       }
-  
-      // ✅ Reset form after successful submission
-      setFormData({
-        content: "",
-        imageFile: null,
-        imageUrl: "",
-        fashionCategory: "",
-      });
-  
-      onClose(); // Close modal if success
     } catch (error) {
       console.error("Post Error:", error.response ? error.response.data : error.message);
-  
-      setState((prev) => ({
-        ...prev,
-        error: error.response?.data?.message || "Error creating post. Please try again.",
-        success: "",
-        loading: false,
-      }));
+      setState((prev) => ({ ...prev, error: error.response?.data?.message || "Error creating post. Please try again.", success: "", loading: false }));
     }
   };
-  
 
   return (
     <div className="add-post-modal">
       <div className="modal-content">
         <h2>Create a New Post</h2>
         <form onSubmit={handleAddPost}>
-          {/* Content Input */}
           <div className="input-group">
             <label>Content</label>
             <textarea
@@ -133,14 +98,12 @@ const AddPost = ({ userId, onClose }) => {
             />
           </div>
 
-          {/* Image Upload */}
           <div className="input-group">
             <label>Upload Image</label>
             <input type="file" onChange={handleFileChange} accept="image/*" aria-label="Upload Image" />
             {formData.imageUrl && <img src={formData.imageUrl} alt="Preview" className="image-preview" />}
           </div>
 
-          {/* Fashion Category Dropdown */}
           <div className="input-group">
             <label>Fashion Category</label>
             <select
@@ -156,23 +119,21 @@ const AddPost = ({ userId, onClose }) => {
             </select>
           </div>
 
-          {/* Submit Button */}
           <button type="submit" className="submit-button" disabled={state.loading}>
             {state.loading ? "Posting..." : "Post"}
           </button>
         </form>
 
-        {/* Error and Success Messages */}
         {state.error && <p className="error">{state.error}</p>}
         {state.success && <p className="success">{state.success}</p>}
 
-        {/* Close Button */}
-        <button className="close-button" onClick={() => window.location.reload()} aria-label="Close Modal">
+        <button className="close-button" onClick={() => onClose()} aria-label="Close Modal">
           Close
         </button>
       </div>
     </div>
   );
 };
+
 
 export default AddPost;

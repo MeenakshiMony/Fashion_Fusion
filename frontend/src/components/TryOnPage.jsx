@@ -85,12 +85,20 @@ const VirtualTryOn = () => {
   useEffect(() => {
     if (!selectedOutfit) return;
 
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+    let animationFrameId;
+
+    // Clear the canvas whenever the selectedOutfit changes
+    if (canvas) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
     const outfitImg = new Image();
     outfitImg.crossOrigin = "anonymous"; // Handle CORS if needed
     outfitImg.src = selectedOutfit.imageUrl;
     outfitImg.onerror = () => {
       console.error("Failed to load outfit image");
-      setError("Failed to load outfit image");
     };
 
     const detectPose = async () => {
@@ -100,8 +108,7 @@ const VirtualTryOn = () => {
           { modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING }
         );
 
-        const canvas = canvasRef.current;
-        const ctx = canvas.getContext("2d");
+        
         canvas.width = 640;
         canvas.height = 480;
 
@@ -138,8 +145,8 @@ const VirtualTryOn = () => {
   }, [selectedOutfit, tryOnMode]);
 
   const placeUpperBodyItem = (ctx, keypoints, img) => {
-    const leftShoulder = keypoints[5]; // MoveNet keypoint indices
-    const rightShoulder = keypoints[6];
+    const leftShoulder = keypoints[6]; // MoveNet keypoint indices
+    const rightShoulder = keypoints[5];
 
     if (leftShoulder.score > 0.5 && rightShoulder.score > 0.5) {
       const leftX = leftShoulder.x;
@@ -156,7 +163,7 @@ const VirtualTryOn = () => {
       const newHeight = img.height * scaleFactor;
 
       const xPos = leftX - newWidth * 0.2;
-      const yPos = leftY - newHeight * 0.1;
+      const yPos = leftY - newHeight * 0.2;
 
       ctx.drawImage(img, xPos, yPos, newWidth, newHeight);
     }
@@ -187,20 +194,23 @@ const VirtualTryOn = () => {
   };
 
   const placeLowerBodyItem = (ctx, keypoints, img) => {
-    const leftHip = keypoints[11];
-    const rightHip = keypoints[12];
+    const leftHip = keypoints[12];
+    const rightHip = keypoints[11];
 
     if (leftHip.score > 0.5 && rightHip.score > 0.5) {
       const hipWidth = Math.sqrt(
         Math.pow(rightHip.x - leftHip.x, 2) + Math.pow(rightHip.y - leftHip.y, 2)
       );
 
-      const scaleFactor = hipWidth / (img.width * 0.8);
+      const scaleFactor = hipWidth / (img.width * 0.3);
       const newWidth = img.width * scaleFactor;
       const newHeight = img.height * scaleFactor;
 
-      const xPos = leftHip.x - newWidth * 0.1;
-      const yPos = leftHip.y - newHeight * 0.2;
+      // Center horizontally between hips
+      const xPos = (leftHip.x + rightHip.x) / 2 - newWidth / 2;
+
+      // Adjust the y-position to place the top of the outfit just below the hips
+      const yPos = Math.min(leftHip.y, rightHip.y) - newHeight * 0.1;
 
       ctx.drawImage(img, xPos, yPos, newWidth, newHeight);
     }

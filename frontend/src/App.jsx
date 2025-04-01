@@ -10,6 +10,7 @@ import CommunityPage from './components/CommunityPage';
 import ProfilePage from './components/ProfilePage';
 import LoginPage from './components/LoginPage';
 import SignupPage from './components/SignupPage';
+import Logout from './components/Logout';
 import './styles/App.css';
 
 const PrivateRoute = ({children}) => {
@@ -30,7 +31,7 @@ function App() {
 
           {/* Use PrivateRoute for protected routes */}
           <Route path="/profile" element={<ProfilePage />} />
-          
+          <Route path="/logout" element={<Logout />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
 

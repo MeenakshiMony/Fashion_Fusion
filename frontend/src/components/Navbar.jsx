@@ -1,10 +1,29 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import '../styles/Navbar.css';
 import { AlignJustify } from "lucide-react";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [token, setToken] = useState(localStorage.getItem('token'));
+
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    setToken(token);
+    console.log("Token: ", token);
+  }, [location]); // Ensure token is checked on each navigation
+
+  
+
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setToken(null);
+    navigate('/login');
+  };
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -23,9 +42,21 @@ const Navbar = () => {
         <li><Link to="/stylist" onClick={toggleMenu}>Virtual Stylist</Link></li>
         <li><Link to="/tryon" onClick={toggleMenu}>Virtual Try-On</Link></li>
         <li><Link to="/community" onClick={toggleMenu}>Community</Link></li>
-        <li><Link to="/profile" onClick={toggleMenu}>Profile</Link></li>
-        <li><Link to="/login" onClick={toggleMenu}>Login</Link></li>
-        <li><Link to="/Signup" onClick={toggleMenu}>Sign Up</Link></li>
+        
+        {/* <li><Link to="/login" onClick={toggleMenu}>Login</Link></li>
+        <li><Link to="/Signup" onClick={toggleMenu}>Sign Up</Link></li> */}
+        {token ? (
+        <>
+          <Link to="/profile" onClick={toggleMenu}>Profile</Link>
+          <Link to="#" onClick={() => { toggleMenu(); handleLogout(); }}>Logout</Link>
+
+        </>
+      ) : (
+        <>
+          <Link to="/login" onClick={toggleMenu}>Login</Link>
+          <Link to="/signup" onClick={toggleMenu}>Signup</Link>
+        </>
+      )}
       </ul>
     </nav>
   );
