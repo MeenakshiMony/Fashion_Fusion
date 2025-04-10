@@ -202,46 +202,4 @@ router.get('/isFollowing/:userId', async (req, res) => {
   }
 });
 
-router.post('/save-outfit/:postId', async (req, res) => {
-  try {
-    const post = await Post.findById(req.params.postId);
-    if (!post) {
-      return res.status(404).json({ error: "Post not found" });
-    }
-
-    const savedOutfit = {
-      postId: post._id,
-      imageUrl: post.imageUrl,
-      description: post.content.substring(0, 50), // Truncate content for description
-    };
-
-    // Use `$addToSet` to prevent duplicates
-    const updatedUser = await User.findByIdAndUpdate(
-      req.user.id,
-      { $addToSet: { savedOutfits: savedOutfit } },
-      { new: true }
-    );
-
-    res.json({ savedOutfit });
-  } catch (error) {
-    console.error("Error saving outfit:", error);
-    res.status(500).json({ error: "Server error" });
-  }
-});
-
-router.delete('/remove-outfit/:outfitId', async (req, res) => {
-  try {
-    const updatedUser = await User.findByIdAndUpdate(
-      req.user.id,
-      { $pull: { savedOutfits: { _id: req.params.outfitId } } },
-      { new: true }
-    );
-
-    res.json({ message: "Outfit removed successfully" });
-  } catch (error) {
-    console.error("Error removing outfit:", error);
-    res.status(500).json({ error: "Server error" });
-  }
-});
-
 export default router;
