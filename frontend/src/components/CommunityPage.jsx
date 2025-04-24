@@ -139,7 +139,7 @@ const CommunityPage = () => {
               <div className="post-header">
                 <span className="post-user">{post.userId.username}</span>
               </div>
-              <img src={post.imageUrl} alt="Post" className="post-image" />
+              <img src={post.imageUrl || (post.imageId ? `http://localhost:8080/image/${post.imageId}` : null)} alt="Post" className="post-image" />
               <p className="post-content">{post.content}</p>
               <div className="post-interactions">
                 <button className="like-button" onClick={() => handleLike(post._id)}>
