@@ -10,7 +10,6 @@ const outfitsDirectory = path.join(process.cwd(), "outfits");
 
 // Middleware to serve static files
 router.use("/outfits", express.static(outfitsDirectory));
-console.log("Outfits Directory Path:", outfitsDirectory);
 
 
 // API to fetch images based on category (tryOnMode)

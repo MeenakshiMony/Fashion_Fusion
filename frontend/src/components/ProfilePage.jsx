@@ -9,6 +9,7 @@ import { Users, Image, Search } from "lucide-react"
 import AddPost from "./AddPost";
 import SearchUsers from "./SearchUsers";
 import DisplayPosts from "./DisplayPosts";
+import AvatarSelector from "./AvatarSelector";
 
 const ProfilePage = () => {
   const [profile, setProfile] = useState({
@@ -24,6 +25,7 @@ const ProfilePage = () => {
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("posts"); // State to track active tab
   const [posts, setPosts] = useState([]);
+  const [showAvatarSelector, setShowAvatarSelector] = useState(false);
 
   const navigate = useNavigate(); // React Router's navigation hook
 
@@ -98,6 +100,11 @@ const ProfilePage = () => {
     }
   };
 
+  const handleAvatarUpdate = (newAvatar) => {
+    setProfile(prev => ({ ...prev, avatar: newAvatar }));
+    setShowAvatarSelector(false);
+  };
+
   useEffect(() => {
     fetchPosts();
   }, []);
@@ -116,13 +123,37 @@ const ProfilePage = () => {
 
         {/* Profile Details */}
         <div className="profile-details">
-          <div className="profile-image">
+          <div className="profile-image" onClick={() => setShowAvatarSelector(true)}>
             <img
-              src={profile.avatar || "https://www.freepik.com/icon/user-avatar_5561278"}
+              src={profile.avatar || "http://localhost:8080/avatars/default.png"}
               alt={`${profile.name}'s avatar`}
               className="profile-avatar"
+              title="Click to change avatar"
+              onError={(e) => {
+                e.target.src = "http://localhost:8080/avatars/default.png";
+                console.error('Failed to load avatar:', profile.avatar);
+              }}
             />
           </div>
+
+          {/* Add this near the end of your component */} 
+          {showAvatarSelector && (
+            <div className="avatar-selector-modal">
+              <div className="modal-content">
+                <button 
+                  className="close-button" 
+                  onClick={() => setShowAvatarSelector(false)}
+                >
+                  ×
+                </button>
+                <AvatarSelector 
+                  userId={profile.id}
+                  currentAvatar={profile.avatar}
+                  onSelect={handleAvatarUpdate}
+                />
+              </div>
+            </div>
+          )}
           <p>
             <strong>Name: </strong>
             <span>{profile.name}</span>

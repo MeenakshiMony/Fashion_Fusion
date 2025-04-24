@@ -2,6 +2,8 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import User from '../model/User';
+import path from 'path';
+import mongoose from 'mongoose';
 
 const router = express.Router();
 
@@ -199,6 +201,62 @@ router.get('/isFollowing/:userId', async (req, res) => {
   } catch (error) {
     console.error("Error checking following status:", error);
     res.status(500).json({ error: "Server error" });
+  }
+});
+
+const avatarsDirectory = path.join(process.cwd(), "avatars");
+router.use("/avatars", express.static(avatarsDirectory));
+
+// Update user avatar
+router.patch('/:userId/avatar', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { avatar } = req.body;
+
+    // Validate input
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ error: 'Invalid user ID' });
+    }
+
+    // Validate the avatar URL format
+    if (!avatar || typeof avatar !== 'string') {
+      return res.status(400).json({ error: 'Invalid avatar URL' });
+    }
+
+    // Verify the avatar exists (optional but recommended)
+    const validAvatars = [
+      'avatar_1.png',
+      'avatar_2.png',
+      'avatar_3.png',
+      'avatar_4.png',
+      'avatar_5.png',
+      'avatar_6.png',
+      'default.png'
+    ];
+    
+    const avatarFilename = avatar.split('/').pop();
+    if (!validAvatars.includes(avatarFilename)) {
+      return res.status(400).json({ error: 'Invalid avatar selection' });
+    }
+
+    // Update the user
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { avatar },
+      { new: true, select: '-password' } // Return updated user without password
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({
+      message: 'Avatar updated successfully',
+      user: updatedUser
+    });
+  } catch (error) {
+    console.error('Error updating avatar:', error);
+    res.status(500).json({ error: 'Server error during avatar update' });
   }
 });
 

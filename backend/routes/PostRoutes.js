@@ -4,6 +4,8 @@ import multer from 'multer';
 import UserModel from '../model/User';
 import PostModel from '../model/Post'; 
 import Comment from '../model/Comment';
+import mongoose from 'mongoose';
+import { gfs } from '../scripts/dbinit'; // Import GridFSBucket
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -55,15 +57,29 @@ router.post("/addpost", upload.single("image"), async (req, res) => {
       return res.status(400).json({ error: "All fields are required." });
     }
 
-    // Convert the uploaded image to Base64 if it exists
-    const imageBase64 = req.file ? req.file.buffer.toString("base64") : null;
+    let imageId = null;
+
+    // If image exists, upload to GridFS
+    if (req.file) {
+      const filename = `${Date.now()}-${req.file.originalname}`;
+      const uploadStream = gfs.openUploadStream(filename);
+      uploadStream.end(req.file.buffer);
+
+      // Wait for upload to finish
+      await new Promise((resolve, reject) => {
+        uploadStream.on('finish', resolve);
+        uploadStream.on('error', reject);
+      });
+
+      imageId = uploadStream.id; // Save the GridFS file ID
+    }
 
     // Create a new post
     const newPost = new PostModel({
       userId,
       content,
       fashionCategory,
-      image: imageBase64, // Store the Base64 string in the database
+      imageId,
     });
 
     await newPost.save();
@@ -71,6 +87,26 @@ router.post("/addpost", upload.single("image"), async (req, res) => {
   } catch (error) {
     console.error("Error creating post:", error);
     res.status(500).json({ error: "Server error. Please try again." });
+  }
+});
+
+// Fetch image by GridFS ID
+router.get('/image/:id', async (req, res) => {
+  try {
+    const fileId = new mongoose.Types.ObjectId(req.params.id);
+    const file = await gfs.find({ _id: fileId }).next();
+
+    if (!file) {
+      return res.status(404).json({ error: 'Image not found.' });
+    }
+
+    // Stream the image to the client
+    const downloadStream = gfs.openDownloadStream(fileId);
+    downloadStream.pipe(res);
+
+  } catch (err) {
+    console.error('Error:', err);
+    res.status(500).json({ error: 'Server error.' });
   }
 });
 

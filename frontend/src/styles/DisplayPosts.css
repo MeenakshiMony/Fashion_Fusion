@@ -16,20 +16,25 @@
   padding: 16px;
   min-width: 30rem;
 }
+
 /* Post Header */
 .post-header {
   display: flex;
   align-items: center;
   gap: 10px;
   margin-bottom: 12px;
+  width: 100%;   
 }
 
 .post-username {
   font-size: 16px;
-  font-weight: bold;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   color: #333;
   text-align: center;
-  width: 100%;
+  max-width: 200px; /* Limit the width of the username */
 }
 /* Post Content */
 .post-content {
@@ -84,4 +89,13 @@ line-height: 1.6; /* Improve readability */
   flex-direction: column; /* Stack heart icon and likes count vertically */
   align-items: center; /* Center items horizontally */
   width: 100%;
+}
+
+.post-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center;
+  flex-shrink: 0;
 }

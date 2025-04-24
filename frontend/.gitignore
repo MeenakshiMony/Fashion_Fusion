@@ -37,3 +37,4 @@ yarn-error.log*
 /src/styles/OldHomePage.css
 /src/styles/Oldtryonpage.css
 .vercel
+package-lock.json

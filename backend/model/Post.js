@@ -3,8 +3,7 @@ import mongoose from 'mongoose';
 const postSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   content: { type: String, required: true, maxLength:1000},
-  file: { type: String },
-  imageUrl: { type: String },
+  imageId: { type: mongoose.Schema.Types.ObjectId}, // Stores GridFS file ID
   likes: { type: Number, default: 0 },
   likedBy: { type: [mongoose.Schema.Types.ObjectId], ref: 'User', default: [] },
   comments: { type: [mongoose.Schema.Types.ObjectId], ref: 'Comment', default: [] },  

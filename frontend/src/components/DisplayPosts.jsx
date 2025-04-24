@@ -4,17 +4,21 @@ import { Heart } from "lucide-react";
 
 const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2MB limit
 
-const Post = ({ username, avatar, content, imageUrl, likes, comments }) => {
+const Post = ({ username, avatar, content, imageId, likes, comments }) => {
+  // Construct the image URL using the imageId
+  const imageUrl = imageId ? `http://localhost:8080/image/${imageId}` : null;
+
   return (
     <div className="post-card">
       {/* Post Header */}
       <div className="post-header">
+        <img src={avatar} alt="User avatar" className="post-avatar" />
         <span className="post-username">{username}</span>
       </div>
 
       {/* Post Content */}
       <div className="post-content">
-        {imageUrl && <img src={imageUrl} alt="Post" className="post-image" />}
+        {imageUrl && <img src={imageUrl} alt="Post" className="post-image" onError={(e) => {e.target.style.display = 'none'}}/>}
       </div>
 
       {/* Post Interactions */}
@@ -42,7 +46,7 @@ const DisplayPosts = ({ posts, avatar, username }) => {
             username={username}
             avatar={avatar}
             content={post.content}
-            imageUrl={post.imageUrl}
+            imageId={post.imageId}
             likes={post.likes}
             comments={post.comments}
           />

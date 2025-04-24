@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, jsonify
 import numpy as np
 import json
 import os
@@ -104,7 +104,10 @@ def index():
             for idx in recommended_indices if str(idx) in fashion_item_map
         ]
 
-    return render_template("index2.html", uploaded_image=uploaded_image, recommendations=recommendations)
+    return jsonify({
+    "uploaded_image": uploaded_image,
+    "recommendations": recommendations
+})
 
 if __name__ == "__main__":
     app.run(debug=True)

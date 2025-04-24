@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
   comments: {type: [mongoose.Schema.Types.ObjectId], ref: 'Comment'},
   email: { type: String, required: true, unique: true ,trim:true},
   password: { type: String, required: true }, //hashed password
-  avatar: { type: String, default: 'https://example.com/default-avatar.png' },
+  avatar: { type: String, default: 'http://localhost:8080/avatars/default.png' },
   profile: {
     firstName: String,
     lastName: String,

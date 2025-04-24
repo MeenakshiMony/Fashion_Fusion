@@ -61,13 +61,9 @@ const AddPost = ({ userId, onClose }) => {
       postData.append("fashionCategory", formData.fashionCategory);
       if (formData.imageFile) postData.append("image", formData.imageFile);
 
-      console.log("Post Data:", Object.fromEntries(postData.entries()));
-
       const response = await axios.post("http://localhost:8080/addpost", postData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-
-      console.log("Server Response:", response.data);
 
       if (response.data.message === "Post added successfully!") {
         setState((prev) => ({ ...prev, success: response.data.message, error: "", loading: false }));
@@ -101,7 +97,9 @@ const AddPost = ({ userId, onClose }) => {
           <div className="input-group">
             <label>Upload Image</label>
             <input type="file" onChange={handleFileChange} accept="image/*" aria-label="Upload Image" />
-            {formData.imageUrl && <img src={formData.imageUrl} alt="Preview" className="image-preview" />}
+            {formData.imageUrl && (
+              <img src={formData.imageUrl} alt="Preview" className="image-preview" onError={(e) => { e.target.style.display = 'none' }} />
+            )}
           </div>
 
           <div className="input-group">

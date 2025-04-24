@@ -20,7 +20,7 @@ app.options('*', cors());
 app.use(cors({
   origin: ['http://localhost:5173', 'http://192.168.1.6:5173'], // Allow requests only from this frontend URL
   credentials: true,  // If your frontend uses cookies or authentication tokens
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"], // Allowed HTTP methods
   allowedHeaders: ["Content-Type", "Authorization"], // Allowed headers
 }));
 
@@ -42,21 +42,11 @@ app.get('/', (req, res) =>
   res.send(`Fashion Fusion Backend is running!`)
 )
 
-// Serve static files from the "public" folder
-app.use('/avatars', express.static('public/avatars'));
+
+
 
 // Serve 3D models and textures dynamically
 app.use("/3dmodel", express.static(path.join(__dirname, "3dmodel")));
-
-// app.get('/avatars', (req, res) => {
-//   const directoryPath = path.join(__dirname, 'public/avatars');
-//   fs.readdir(directoryPath, (err, files) => {
-//     if (err) {
-//       return res.status(500).json({ error: 'Unable to fetch files' });
-//     }
-//     res.json(files);
-//   });
-// });
 
 // Serve static files from the 'models' directory
 const modelsDirectory = path.join(__dirname, 'models');
