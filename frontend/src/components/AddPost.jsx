@@ -17,24 +17,35 @@ const AddPost = ({ userId, onClose }) => {
   });
 
   const fashionCategories = ["Outfit", "Accessory", "StylingTips"];
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
+
+    // Clear any previous error when a new file is selected
+    setState(prev => ({ ...prev, error: "" }));
+
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        setState({ ...state, error: "File size must be less than 5MB" });
+      if (file.size > MAX_FILE_SIZE) {
+        setState({ ...state, error: "File size must be less than 5MB", success: "" });
+        // Clear the file input and any previous file data
+        e.target.value = "";
+        setFormData(prev => ({ ...prev, imageFile: null, imageUrl: "" }));
         return;
       }
       if (!file.type.startsWith("image/")) {
-        setState({ ...state, error: "Only image files are allowed" });
+        setState({ ...state, error: "Only image files are allowed",success: "" });
+        e.target.value = "";
+        setFormData(prev => ({ ...prev, imageFile: null, imageUrl: "" }));
         return;
       }
 
-      setFormData({ ...formData, imageFile: file });
+      // If we get here, the file is valid
+      setFormData(prev => ({ ...prev, imageFile: file }));
 
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFormData((prev) => ({ ...prev, imageUrl: reader.result }));
+        setFormData(prev => ({ ...prev, imageUrl: reader.result }));
       };
       reader.readAsDataURL(file);
     }
@@ -43,16 +54,28 @@ const AddPost = ({ userId, onClose }) => {
   const handleAddPost = async (e) => {
     e.preventDefault();
 
+    // Clear previous messages
+    setState({ ...state, error: "", success: "" });
+
+    // Validate content
     if (!formData.content.trim()) {
       setState({ ...state, error: "Content cannot be empty" });
       return;
     }
+
+    // Validate category
     if (!fashionCategories.includes(formData.fashionCategory)) {
       setState({ ...state, error: "Invalid fashion category. Choose from Outfit, Accessory, or StylingTips." });
       return;
     }
 
-    setState({ ...state, loading: true, error: "", success: "" });
+    // If an image was selected but exceeds size limit, prevent submission
+    if (formData.imageFile?.size > MAX_FILE_SIZE) {
+      setState({ ...state, error: "File size must be less than 5MB. Imnage won't be saved." });
+      return;
+    }
+
+    setState({ ...state, loading: true });
 
     try {
       const postData = new FormData();
@@ -66,7 +89,7 @@ const AddPost = ({ userId, onClose }) => {
       });
 
       if (response.data.message === "Post added successfully!") {
-        setState((prev) => ({ ...prev, success: response.data.message, error: "", loading: false }));
+        setState({ success: response.data.message, error: "", loading: false });
         setFormData({ content: "", imageFile: null, imageUrl: "", fashionCategory: "" });
 
         if (typeof onClose === "function") {
@@ -75,7 +98,11 @@ const AddPost = ({ userId, onClose }) => {
       }
     } catch (error) {
       console.error("Post Error:", error.response ? error.response.data : error.message);
-      setState((prev) => ({ ...prev, error: error.response?.data?.message || "Error creating post. Please try again.", success: "", loading: false }));
+      setState({ 
+        error: error.response?.data?.message || "Error creating post. Please try again.", 
+        success: "", 
+        loading: false 
+      });
     }
   };
 
@@ -91,14 +118,25 @@ const AddPost = ({ userId, onClose }) => {
               value={formData.content}
               onChange={(e) => setFormData({ ...formData, content: e.target.value })}
               aria-label="Post Content"
+              required
             />
           </div>
 
           <div className="input-group">
-            <label>Upload Image</label>
-            <input type="file" onChange={handleFileChange} accept="image/*" aria-label="Upload Image" />
+            <label>Upload Image (max 5MB)</label>
+            <input 
+              type="file" 
+              onChange={handleFileChange} 
+              accept="image/*" 
+              aria-label="Upload Image" 
+            />
             {formData.imageUrl && (
-              <img src={formData.imageUrl} alt="Preview" className="image-preview" onError={(e) => { e.target.style.display = 'none' }} />
+              <img 
+                src={formData.imageUrl} 
+                alt="Preview" 
+                className="image-preview" 
+                onError={(e) => { e.target.style.display = 'none' }} 
+              />
             )}
           </div>
 
@@ -107,6 +145,8 @@ const AddPost = ({ userId, onClose }) => {
             <select
               value={formData.fashionCategory}
               onChange={(e) => setFormData({ ...formData, fashionCategory: e.target.value })}
+              aria-label="Select Fashion Category"
+              required
             >
               <option value="">Select a category</option>
               {fashionCategories.map((category) => (
@@ -117,21 +157,26 @@ const AddPost = ({ userId, onClose }) => {
             </select>
           </div>
 
-          <button type="submit" className="submit-button" disabled={state.loading}>
-            {state.loading ? "Posting..." : "Post"}
-          </button>
+          {state.error && <p className="error">{state.error}</p>}
+          {state.success && <p className="success">{state.success}</p>}
+
+          <div className="button-group">
+            <button type="submit" className="submit-button" disabled={state.loading}>
+              {state.loading ? "Posting..." : "Post"}
+            </button>
+            <button 
+              type="button" 
+              className="close-button" 
+              onClick={() => onClose()} 
+              aria-label="Close Modal"
+            >
+              Close
+            </button>
+          </div>
         </form>
-
-        {state.error && <p className="error">{state.error}</p>}
-        {state.success && <p className="success">{state.success}</p>}
-
-        <button className="close-button" onClick={() => onClose()} aria-label="Close Modal">
-          Close
-        </button>
       </div>
     </div>
   );
 };
-
 
 export default AddPost;

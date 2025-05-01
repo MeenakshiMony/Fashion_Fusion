@@ -6,21 +6,39 @@ import { Heart, MessageCircle } from "lucide-react"
 
 const CommunityPage = () => {
   const [posts, setPosts] = useState([]);
+  const [filteredPosts, setFilteredPosts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const fashionCategories = ["Outfit", "Accessory", "StylingTips"];
+  const [selectedCategory, setSelectedCategory] = useState('All'); 
 
   // Fetch posts from backend
   useEffect(() => {
     setLoading(true);
     axios.get('/posts')
-      .then(response => setPosts(response.data))
+      .then(response => {
+        setPosts(response.data)
+        setFilteredPosts(response.data);
+        console.log(response.data);
+      })
       .catch(err => {
         console.error('Error fetching posts:', err);
         setError(`Error fetching posts: ${err.message || 'Unknown error'}`);
         setPosts([]);
+        setFilteredPosts([]);
       })
       .finally(() => setLoading(false));
   }, []);
+
+  // Filter posts when category changes
+  useEffect(() => {
+    if (selectedCategory === 'All') {
+      setFilteredPosts(posts);
+    } else {
+      setFilteredPosts(posts.filter(post => post.
+        fashionCategory === selectedCategory));
+    }
+  }, [selectedCategory, posts]);
 
   const getLoggedInUserId = () => {
    try {
@@ -131,10 +149,24 @@ const CommunityPage = () => {
       <h1>Community Engagement</h1>
       {loading && <p>Loading posts...</p>}
       {error && <p>{error}</p>}
+
+      <div className="category-filter">
+        <label>Filter by Category: </label>
+        <select 
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+        >
+          <option value="All">All Categories</option>
+          {fashionCategories.map(category => (
+            <option key={category} value={category}>{category}</option>
+          ))}
+        </select>
+      </div>
+
       <section className="social-feed">
         <h2>Latest Posts</h2>
-        {Array.isArray(posts) && posts.length > 0 ? (
-          posts.map((post) => (
+        {Array.isArray(filteredPosts) && filteredPosts.length > 0 ? (
+          filteredPosts.map((post) => (
             <div key={post._id} className="post-card">
               <div className="post-header">
                 <span className="post-user">{post.userId.username}</span>
@@ -186,7 +218,7 @@ const CommunityPage = () => {
             </div>
           ))
         ) : (
-          <p>No posts available</p>
+          <p>No posts available{selectedCategory !== 'All' ? ` in ${selectedCategory} category` : ''}</p>
         )}
       </section>
     </div>

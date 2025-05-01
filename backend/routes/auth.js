@@ -32,10 +32,19 @@ router.get('/users/:id', async (req, res) => {
 // Register a new user
 router.post('/signup', async (req, res) => {
   const { username, email, password } = req.body;
+
+  // Add input validation
+  if (!username || !email || !password) {
+    return res.status(400).json({ 
+      message: 'All fields are required' 
+    });
+  }
+
   try {
     if (await User.findOne({ email })) {
       return res.status(400).json({ message: 'User already exists' });
     }
+
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({ username, email, password: hashedPassword });
@@ -257,6 +266,132 @@ router.patch('/:userId/avatar', async (req, res) => {
   } catch (error) {
     console.error('Error updating avatar:', error);
     res.status(500).json({ error: 'Server error during avatar update' });
+  }
+});
+
+
+// Update user profile
+router.put('/usersupdate/:userId',async (req, res) => {
+  try{
+    const { userId } = req.params;
+    const { username, email, profile } = req.body;
+
+    //update user 
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { username, email, 
+        profile: {
+          firstName: profile?.firstName,
+          lastName: profile?.lastName,
+          bio: profile?.bio
+        } },
+      { new: true, select: '-password' } // Return updated user without password
+    );
+
+    if(!updatedUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json({
+      success: true,
+      user: updatedUser
+    });
+
+  }
+  catch (error) {
+    console.error('Error updating user profile:', error);
+    res.status(500).json({ success: false, message: 'Server error', error: error.message });
+  }
+}
+);
+
+router.put('/change-password', async (req, res) => {
+  const { userId, currentPassword, newPassword, confirmPassword } = req.body;
+
+  try {
+  
+    if (!userId || !currentPassword || !newPassword || !confirmPassword) {
+      return res.status(400).json({ success: false, message: 'All fields are required' });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ success: false, message: 'New password and confirmation do not match' });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ success: false, message: 'Password must be at least 6 characters' });
+    }
+
+    const user = await User.findById(userId).select('+password');
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword.trim(), user.password);
+    console.log('currentPassword:', currentPassword);
+    console.log('user.password:', user.password);
+    console.log('isMatch:', isMatch);
+    if (!isMatch) {
+      return res.status(400).json({ success: false, message: 'Current password is incorrect' });
+    }
+
+    const isSamePassword = await bcrypt.compare(newPassword, user.password);
+    if (isSamePassword) {
+      return res.status(400).json({ success: false, message: 'New password must be different from current password' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(newPassword, salt);
+    await user.save();
+
+    return res.json({ success: true, message: 'Password updated successfully' });
+
+  } catch (error) {
+    console.error('Password update error:', error);
+    
+    if (error.name === 'CastError') {
+      return res.status(401).json({ success: false, message: 'Invalid user ID format' });
+    }
+    
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Server error during password update'
+    });
+  }
+});
+
+// Get user profile by ID (public info)
+router.get('/profile/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Find user but exclude sensitive information
+    const user = await User.findById(userId)
+      .select('-password -email -__v') // Exclude private fields
+      .populate({
+        path: 'posts',
+        select: 'content createdAt', // Only include specific post fields
+        options: { sort: { createdAt: -1 }, limit: 10 } // Get latest 10 posts
+      });
+
+    if (!user) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'User not found' 
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      profile: user
+    });
+
+  } catch (error) {
+    console.error('Error fetching profile:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Error fetching user profile',
+      error: error.message 
+    });
   }
 });
 

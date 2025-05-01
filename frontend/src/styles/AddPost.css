@@ -173,3 +173,17 @@ button:hover {
       transform: scale(1);
   }
 }
+
+.add-post-modal textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  resize: vertical; /* Allows vertical resize only */
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-wrap; /* Preserves line breaks and spaces */
+  word-wrap: break-word; /* Breaks long words */
+}

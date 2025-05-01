@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import "../styles/SearchUsers.css";
 
 export default function UserSearch({ currentUserId, refreshProfile }) {
@@ -8,6 +9,7 @@ export default function UserSearch({ currentUserId, refreshProfile }) {
   const [followedUsers, setFollowedUsers] = useState(new Set());
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleSearch = async (e) => {
     e.preventDefault(); // Prevent page refresh
@@ -25,6 +27,8 @@ export default function UserSearch({ currentUserId, refreshProfile }) {
         params: { query: searchTerm },
       });
       setSearchResults(response.data);
+      console.log(response.data);
+      console.log(response.data.id);
     } catch (error) {
       setError("Error fetching users. Please try again.");
     } finally {
@@ -57,6 +61,11 @@ export default function UserSearch({ currentUserId, refreshProfile }) {
     }
   };  
 
+  const handleUserClick = (userId) => {
+    // Navigate to the user's profile
+    navigate(`/profile/${userId}`);
+  };
+
   return (
     <div className="search-container">
       <form onSubmit={handleSearch} className="search-form">
@@ -76,7 +85,7 @@ export default function UserSearch({ currentUserId, refreshProfile }) {
 
       <div className="search-results">
         {searchResults.map((user) => (
-          <div key={user._id} className="user-card">
+          <div key={user._id} className="user-card" onClick={() => handleUserClick(user._id)}>
             <div className="user-info">
               <img
                 src={user.avatar || "/placeholder.svg"}

@@ -166,4 +166,22 @@ router.post('/posts/:id/like', async (req,res) => {
   }
 })
 
+// Delete post route
+router.delete('/:postId', async (req, res) => {
+  try {
+    const deletedPost = await PostModel.findByIdAndDelete(req.params.postId);
+    
+    if (!deletedPost) {
+      return res.status(404).json({ success: false, message: 'Post not found' });
+    }
+
+    await Comment.deleteMany({ post: req.params.postId });
+
+    res.json({ success: true, message: 'Post deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting post:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 export default router;

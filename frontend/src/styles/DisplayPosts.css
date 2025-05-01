@@ -99,3 +99,25 @@ line-height: 1.6; /* Improve readability */
   object-position: center;
   flex-shrink: 0;
 }
+
+.delete-post-button {
+  background: none;
+  border: none;
+  color: #ff6b6b;
+  cursor: pointer;
+  margin-left: auto;
+  padding: 4px;
+  transition: all 0.2s;
+  width: 30px;
+}
+
+.delete-post-button:hover {
+  color: #ff0000;
+  transform: scale(1.1);
+}
+
+.post-text-content {
+  padding: 0 16px 12px;
+  margin: 0;
+  word-break: break-word;
+}
