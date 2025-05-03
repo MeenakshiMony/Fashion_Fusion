@@ -10,7 +10,7 @@ package-lock.json
 /scripts/sampleData.js
 /Recommendations/images
 /Recommendations/venv
-/Recommendations/uploads/*
-!/Recommendations/uploads/.gitkeep
+/Recommendations/static/uploads/*
+!/Recommendations/static/uploads/.gitkeep
 
 
