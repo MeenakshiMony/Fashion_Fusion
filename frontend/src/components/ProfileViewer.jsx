@@ -1,29 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
-import DisplayPosts from './DisplayPosts';
 import '../styles/ProfileViewer.css';
 
-const ProfileViewer = ({ currentUserId }) => {
+const ProfileViewer = () => {
   const { userId } = useParams();
-  const [profile, setProfile] = useState(null);
-  const [isFollowing, setIsFollowing] = useState(false);
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchUserProfile = async () => {
       try {
-        const [profileRes, followStatusRes] = await Promise.all([
-          axios.get(`http://localhost:8080/users/profile/${userId}`),
-          currentUserId && axios.post(`http://localhost:8080/users/check-follow`, {
-            currentUserId,
-            targetUserId: userId
-          })
-        ]);
-
-        setProfile(profileRes.data.profile);
-        setIsFollowing(followStatusRes?.data?.isFollowing || false);
+        const response = await axios.get(`http://localhost:8080/users/${userId}`);
+        setUser(response.data.user);
       } catch (err) {
         setError('Failed to load profile');
       } finally {
@@ -31,57 +21,55 @@ const ProfileViewer = ({ currentUserId }) => {
       }
     };
 
-    fetchProfile();
-  }, [userId, currentUserId]);
-
-  const handleFollowToggle = async () => {
-    try {
-      const response = await axios.post(`http://localhost:8080/users/follow/${userId}`, {
-        currentUserId
-      });
-      
-      setIsFollowing(response.data.isFollowing);
-      setProfile(prev => ({
-        ...prev,
-        followersCount: response.data.followersCount
-      }));
-    } catch (err) {
-      setError('Failed to update follow status');
-    }
-  };
+    fetchUserProfile();
+  }, [userId]);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
-  if (!profile) return <div>Profile not found</div>;
+  if (!user) return <div>Profile not found</div>;
 
   return (
-    <div className="profile-viewer">
+    <div className="profile-container">
       <div className="profile-header">
-        <img src={profile.avatar} alt="Profile" className="profile-avatar" />
+        <img 
+          src={user.avatar || "/placeholder.svg"} 
+          alt="Profile" 
+          className="profile-avatar" 
+        />
         <div className="profile-info">
-          <h2>{profile.username}</h2>
-          <div className="profile-stats">
-            <span>{profile.posts.length} posts</span>
-            <span>{profile.followersCount} followers</span>
-            <span>{profile.followingCount} following</span>
-          </div>
+          <h2>{user.username}</h2>
+          <p className="email">{user.email}</p>
+          {user.profile?.bio && <p className="bio">{user.profile.bio}</p>}
         </div>
-        {currentUserId !== userId && (
-          <button 
-            onClick={handleFollowToggle}
-            className={`follow-button ${isFollowing ? 'unfollow' : 'follow'}`}
-          >
-            {isFollowing ? 'Unfollow' : 'Follow'}
-          </button>
-        )}
       </div>
 
-      <DisplayPosts 
-        posts={profile.posts} 
-        avatar={profile.avatar}
-        username={profile.username}
-        isCurrentUser={currentUserId === userId}
-      />
+      <div className="profile-stats">
+        <span>{user.posts?.length || 0} posts</span>
+        <span>{user.followersCount || 0} followers</span>
+        <span>{user.followingCount || 0} following</span>
+      </div>
+
+      <div className="user-posts">
+        <h3>Posts</h3>
+        {user.posts && user.posts.length > 0 ? (
+          <div className="posts-grid">
+            {user.posts.map(post => (
+              <div key={post._id} className="post-item">
+                {post.imageUrl && (
+                  <img 
+                    src={post.imageUrl} 
+                    alt={post.content || 'Post'} 
+                    className="post-image"
+                  />
+                )}
+                <p className="post-content">{post.content}</p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p>No posts yet</p>
+        )}
+      </div>
     </div>
   );
 };

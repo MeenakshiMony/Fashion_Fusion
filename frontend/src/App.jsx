@@ -11,6 +11,7 @@ import ProfilePage from './components/ProfilePage';
 import LoginPage from './components/LoginPage';
 import SignupPage from './components/SignupPage';
 import Logout from './components/Logout';
+import ProfileViewer from './components/ProfileViewer';
 import './styles/App.css';
 
 const PrivateRoute = ({children}) => {
@@ -34,6 +35,7 @@ function App() {
           <Route path="/logout" element={<Logout />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/profile/:userId" element={<ProfileViewer />} />
 
           {/* Redirect to Home if route not found */}
           <Route path="*" element={<Navigate to="/" />} />

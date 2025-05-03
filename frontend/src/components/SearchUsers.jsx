@@ -7,13 +7,32 @@ export default function UserSearch({ currentUserId, refreshProfile }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [followedUsers, setFollowedUsers] = useState(new Set());
+  const [followingList, setFollowingList] = useState([]); // New state for following list
+  const [showFollowing, setShowFollowing] = useState(false); // Toggle for following list
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleSearch = async (e) => {
-    e.preventDefault(); // Prevent page refresh
+  // Load initial followed users
+  useEffect(() => {
+    const fetchFollowedUsers = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8080/following/${currentUserId}`);
+        const followingIds = response.data.following.map(user => user._id);
+        setFollowedUsers(new Set(followingIds));
+        setFollowingList(response.data.following); // Store full following list
+      } catch (error) {
+        console.error("Error fetching followed users:", error);
+      }
+    };
 
+    if (currentUserId) {
+      fetchFollowedUsers();
+    }
+  }, [currentUserId]);
+
+  const handleSearch = async (e) => {
+    e.preventDefault();
     if (!searchTerm.trim()) {
       setError("Please enter a search term.");
       return;
@@ -27,8 +46,7 @@ export default function UserSearch({ currentUserId, refreshProfile }) {
         params: { query: searchTerm },
       });
       setSearchResults(response.data);
-      console.log(response.data);
-      console.log(response.data.id);
+      setShowFollowing(false); // Hide following list when searching
     } catch (error) {
       setError("Error fetching users. Please try again.");
     } finally {
@@ -36,16 +54,20 @@ export default function UserSearch({ currentUserId, refreshProfile }) {
     }
   };
 
-  const handleFollowToggle = async (userId) => {
+  const handleFollowToggle = async (userId, e) => {
+    e.stopPropagation();
     try {
+      const isCurrentlyFollowing = followedUsers.has(userId);
+      
+      // Use the same endpoint for both actions (as per your backend)
       const response = await axios.post(`http://localhost:8080/follow/${userId}`, {
-        currentUserId: currentUserId, // Send current user's ID in body
+        currentUserId: currentUserId,
       });
-  
-      // Update local followed users state
-      setFollowedUsers((prev) => {
+
+      // Update local state based on response
+      setFollowedUsers(prev => {
         const newSet = new Set(prev);
-        if (newSet.has(userId)) {
+        if (response.data.message.includes("unfollowed")) {
           newSet.delete(userId);
         } else {
           newSet.add(userId);
@@ -53,56 +75,126 @@ export default function UserSearch({ currentUserId, refreshProfile }) {
         return newSet;
       });
 
-      // Call refreshProfile() to update the Profile Page
-      if (refreshProfile) refreshProfile();
+      // Refresh following list if showing
+      if (showFollowing) {
+        const updatedResponse = await axios.get(`http://localhost:8080/following/${currentUserId}`);
+        setFollowingList(updatedResponse.data.following);
+      }
 
+      if (refreshProfile) refreshProfile();
     } catch (error) {
       console.error("Error following/unfollowing user:", error);
+      setError("Failed to update follow status");
     }
-  };  
+  };
 
-  const handleUserClick = (userId) => {
-    // Navigate to the user's profile
+  const toggleFollowingList = () => {
+    setShowFollowing(!showFollowing);
+    if (!showFollowing) {
+      setSearchResults([]); // Clear search results when showing following list
+      setSearchTerm(""); // Clear search term
+    }
+  };
+
+  const navigateToProfile = (userId) => {
     navigate(`/profile/${userId}`);
   };
 
   return (
     <div className="search-container">
-      <form onSubmit={handleSearch} className="search-form">
-        <input
-          type="text"
-          placeholder="Search users..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="search-input"
-        />
-        <button type="submit" className="search-button" disabled={loading}>
-          {loading ? "Searching..." : "Search"}
+      <div className="search-header">
+        <form onSubmit={handleSearch} className="search-form">
+          <input
+            type="text"
+            placeholder="Search users..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
+          <button type="submit" className="search-button" disabled={loading}>
+            {loading ? "Searching..." : "Search"}
+          </button>
+        </form>
+        
+        <button 
+          onClick={toggleFollowingList}
+          className="show-following-button"
+        >
+          {showFollowing ? "Hide Following" : "Show Following"}
         </button>
-      </form>
+      </div>
 
       {error && <p className="error-message">{error}</p>}
 
-      <div className="search-results">
-        {searchResults.map((user) => (
-          <div key={user._id} className="user-card" onClick={() => handleUserClick(user._id)}>
-            <div className="user-info">
-              <img
-                src={user.avatar || "/placeholder.svg"}
-                alt={user.username}
-                className="user-avatar"
-              />
-              <p className="username">{user.username}</p>
-            </div>
-            <button
-              onClick={() => handleFollowToggle(user._id)}
-              className={`follow-button ${followedUsers.has(user._id) ? "unfollow" : "follow"}`}
-            >
-              {followedUsers.has(user._id) ? "Unfollow" : "Follow"}
-            </button>
-          </div>
-        ))}
-      </div>
+      {showFollowing ? (
+        <div className="following-list">
+          <h3>Users You Follow</h3>
+          {followingList.length > 0 ? (
+            followingList.map((user) => (
+              <div key={user._id} className="user-card">
+                <div 
+                  className="user-info"
+                  onClick={() => navigateToProfile(user._id)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <img
+                    src={user.avatar || "/placeholder.svg"}
+                    alt={user.username}
+                    className="user-avatar"
+                  />
+                  <p className="username" style={{ 
+                    textDecoration: "underline",
+                    fontWeight: "bold"
+                  }}>
+                    {user.username}
+                  </p>
+                </div>
+                <button
+                  onClick={(e) => handleFollowToggle(user._id, e)}
+                  className="follow-button unfollow"
+                >
+                  Unfollow
+                </button>
+              </div>
+            ))
+          ) : (
+            <p>You're not following anyone yet.</p>
+          )}
+        </div>
+      ) : (
+        <div className="search-results">
+          {searchResults.map((user) => {
+            const isFollowing = followedUsers.has(user._id);
+            return (
+              <div key={user._id} className="user-card">
+                <div 
+                  className="user-info"
+                  onClick={() => navigateToProfile(user._id)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <img
+                    src={user.avatar || "/placeholder.svg"}
+                    alt={user.username}
+                    className="user-avatar"
+                  />
+                  <p className="username" style={{ 
+                    textDecoration: "underline",
+                    fontWeight: "bold"
+                  }}>
+                    {user.username}
+                  </p>
+                </div>
+                <button
+                  onClick={(e) => handleFollowToggle(user._id, e)}
+                  className={`follow-button ${isFollowing ? "unfollow" : "follow"}`}
+                >
+                  {isFollowing ? "Unfollow" : "Follow"}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "homepage": "https://MeenakshiMony.github.io/Fashion_Fusion",
+  "proxy": "http://localhost:5000",
   "dependencies": {
     "@mediapipe/pose": "^0.5.1675469404",
     "@react-three/drei": "^10.0.7",
