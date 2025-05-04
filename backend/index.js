@@ -4,6 +4,7 @@ import cors from 'cors';
 import fs from 'fs';
 import path from 'path';
 import dotenv from 'dotenv';
+import multer from 'multer';
 dotenv.config();
 
 import { populateDatabase } from './scripts/dbinit';  // Import populateDatabase function
@@ -18,7 +19,7 @@ app.options('*', cors());
 
 //Use CORS middleware for all routes
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://192.168.1.6:5173'], // Allow requests only from this frontend URL
+  origin: ['http://localhost:5173', 'http://192.168.1.6:5173','https://fashion-fusion-orpin.vercel.app','https://d019-111-92-45-20.ngrok-free.app' ], // Allow requests only from this frontend URL
   credentials: true,  // If your frontend uses cookies or authentication tokens
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"], // Allowed HTTP methods
   allowedHeaders: ["Content-Type", "Authorization"], // Allowed headers

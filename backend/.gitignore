@@ -9,7 +9,7 @@ package-lock.json
 #others
 /scripts/sampleData.js
 /Recommendations/images
-/Recommendations/venv
+/Recommendations/myenv
 /Recommendations/static/uploads/*
 !/Recommendations/static/uploads/.gitkeep
 

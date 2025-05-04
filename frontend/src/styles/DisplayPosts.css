@@ -55,6 +55,7 @@ line-height: 1.6; /* Improve readability */
   width: 100%;
   border-radius: 8px;
   margin-top: 10px;
+  height: 100%;
 }
 
 /* Post Interactions */

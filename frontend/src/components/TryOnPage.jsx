@@ -1,6 +1,4 @@
 import React, { useRef, useEffect, useState } from "react";
-import * as poseDetection from "@tensorflow-models/pose-detection";
-import * as tf from "@tensorflow/tfjs";
 import '../styles/TryOnPage.css';
 
 const VirtualTryOn = () => {
