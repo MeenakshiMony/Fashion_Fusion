@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import "../styles/ProfilePage.css";
-import { Users, Image, Search, Edit, Save, X, Lock, Trash2 } from "lucide-react";
+import { User, Image, Search, Edit, Save, X, Lock, Trash2, Mail, Smile } from "lucide-react";
 import EmojiPicker from "emoji-picker-react";
 
 import AddPost from "./AddPost";
@@ -295,107 +295,91 @@ const ProfilePage = () => {
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
 
-  return (
-    <div className="profile-page">
-      <h1>Profile</h1>
-
-      {/* Profile Card */}
-      <div className="profile-card">
-        <div className="profile-header"></div>
-
-        <div className="profile-details">
-          <div className="profile-image" onClick={() => setShowAvatarSelector(true)}>
-            <img
-              src={profile.avatar || "http://localhost:8080/avatars/default.png"}
-              alt={`${profile.name}'s avatar`}
-              className="profile-avatar"
-              title="Click to change avatar"
-              onError={(e) => {
-                e.target.src = "http://localhost:8080/avatars/default.png";
-                console.error('Failed to load avatar:', profile.avatar);
-              }}
-            />
-          </div>
-
-          {showAvatarSelector && (
-            <div className="avatar-selector-modal">
-              <div className="modal-content">
-                <button 
-                  className="close-button" 
-                  onClick={() => setShowAvatarSelector(false)}
-                >
-                  ×
-                </button>
-                <AvatarSelector 
-                  userId={profile.id}
-                  currentAvatar={profile.avatar}
-                  onSelect={handleAvatarUpdate}
-                />
-              </div>
-            </div>
-          )}
-
+    return (
+      <div className="profile-container">
+        {/* Cover Photo Section */}
+        <div className="cover-photo">
           <div className="profile-actions">
             <button 
-              className="edit-profile-button"
+              className="edit-btn"
               onClick={() => setShowEditForm(!showEditForm)}
             >
               {showEditForm ? <X size={18} /> : <Edit size={18} />}
               {showEditForm ? ' Cancel' : ' Edit Profile'}
             </button>
             <button 
-              className="change-password-button"
+              className="password-btn"
               onClick={() => {
-                setShowPasswordForm(!showPasswordForm)
+                setShowPasswordForm(!showPasswordForm);
                 setPasswordError("");
                 setPasswordSuccess("");
-                
               }}
             >
               <Lock size={18} />
-              {showPasswordForm ? ' Cancel' : ' Change Password'}
+              {showPasswordForm ? ' Cancel' : ' Password'}
             </button>
           </div>
-
-          {!showEditForm && !showPasswordForm ? (
-            <>
-              <p>
-                <strong>Username: </strong>
-                <span>{profile.name}</span>
+        </div>
+  
+        {/* Profile Info Section */}
+        <div className="profile-info">
+          <div className="avatar-container" onClick={() => setShowAvatarSelector(true)}>
+            <img
+              src={profile.avatar || "http://localhost:8080/avatars/default.png"}
+              alt={`${profile.name}'s avatar`}
+              className="profile-avatar"
+              onError={(e) => {
+                e.target.src = "http://localhost:8080/avatars/default.png";
+              }}
+            />
+            <div className="avatar-edit-overlay">
+              <Edit size={20} color="#fff" />
+            </div>
+          </div>
+  
+          <div className="user-details">
+            <h1 className="username">{profile.name}</h1>
+            {profile.profile.firstName || profile.profile.lastName ? (
+              <p className="name">
+                {profile.profile.firstName} {profile.profile.lastName}
               </p>
-              <p>
-                <strong>Email: </strong>
+            ) : null}
+            
+            <div className="stats">
+              <div className="stat">
+                <span className="stat-number">{profile.posts?.length || 0}</span>
+                <span className="stat-label">Posts</span>
+              </div>
+              <div className="stat">
+                <span className="stat-number">{profile.followersCount || 0}</span>
+                <span className="stat-label">Followers</span>
+              </div>
+              <div className="stat">
+                <span className="stat-number">{profile.followingCount || 0}</span>
+                <span className="stat-label">Following</span>
+              </div>
+            </div>
+  
+            {profile.profile.bio && (
+              <p className="bio">{profile.profile.bio}</p>
+            )}
+  
+            <div className="contact-info">
+              <div className="contact-item">
+                <Mail size={16} />
                 <span>{profile.email}</span>
-              </p>
-              {profile.profile.firstName && (
-                <p>
-                  <strong>First Name: </strong>
-                  <span>{profile.profile.firstName}</span>
-                </p>
-              )}
-              {profile.profile.lastName && (
-                <p>
-                  <strong>Last Name: </strong>
-                  <span>{profile.profile.lastName}</span>
-                </p>
-              )}
-              {profile.profile.bio && (
-                <p>
-                  <strong>Bio: </strong>
-                  <span>{profile.profile.bio}</span>
-                </p>
-              )}
-              <p>
-                <strong>Followers: </strong>
-                <span>{profile.followersCount || 0}</span>
-                <strong> Following: </strong>
-                <span>{profile.followingCount || 0}</span>
-              </p>
-            </>
-          ) : showEditForm ? (
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        {/* Edit Forms (appear below profile info when activated) */}
+        {showEditForm && (
+          <div className="edit-form-container">
             <form className="edit-profile-form" onSubmit={handleProfileUpdate}>
+              <h3>Edit Profile</h3>
               <div className="form-group">
-                <label>Username</label>
+                <label><User size={16} /> Username</label>
                 <input
                   type="text"
                   name="username"
@@ -426,7 +410,7 @@ const ProfilePage = () => {
               </div>
               <div className="form-group">
                 <div className="bio-input-container">
-                  <label>Bio</label>
+                  <label><Smile size={16} /> Bio</label>
                   <div className="bio-input-wrapper">
                     <textarea
                       ref={bioRef}
@@ -455,12 +439,17 @@ const ProfilePage = () => {
                   )}
                 </div>
               </div>
-              <button type="submit" className="save-profile-button">
+              <button type="submit" className="save-btn">
                 <Save size={16} /> Save Changes
               </button>
             </form>
-          ) : (
+          </div>
+        )}
+  
+        {showPasswordForm && (
+          <div className="edit-form-container">
             <form className="password-form" onSubmit={handlePasswordUpdate}>
+              <h3>Change Password</h3>
               <div className="form-group">
                 <label>Current Password</label>
                 <input
@@ -493,71 +482,96 @@ const ProfilePage = () => {
                   minLength="6"
                 />
               </div>
-              {passwordError && <p className="error-message">{passwordError}</p>}
-              <button type="submit" className="save-password-button">
-                <Save size={16} /> Change Password
+              {passwordError && <div className="error-message">{passwordError}</div>}
+              {passwordSuccess && <div className="success-message">{passwordSuccess}</div>}
+              <button type="submit" className="save-btn">
+                <Save size={16} /> Update Password
               </button>
-              {passwordSuccess && <p className="success-message">{passwordSuccess}</p>}
-              
             </form>
+          </div>
+        )}
+  
+        {/* Avatar Selector Modal */}
+        {showAvatarSelector && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <button 
+                className="close-modal-btn" 
+                onClick={() => setShowAvatarSelector(false)}
+              >
+                <X size={24} />
+              </button>
+              <h3>Change Profile Picture</h3>
+              <AvatarSelector 
+                userId={profile.id}
+                currentAvatar={profile.avatar}
+                onSelect={handleAvatarUpdate}
+              />
+            </div>
+          </div>
+        )}
+  
+        {/* Tab Navigation */}
+        <div className="content-tabs">
+          <button
+            className={`tab ${activeTab === "posts" ? "active" : ""}`}
+            onClick={() => setActiveTab("posts")}
+          >
+            <Image size={18} />
+            <span>Posts</span>
+          </button>
+          <button
+            className={`tab ${activeTab === "addPost" ? "active" : ""}`}
+            onClick={() => setActiveTab("addPost")}
+          >
+            <Image size={18} />
+            <span>Add Post</span>
+          </button>
+          <button
+            className={`tab ${activeTab === "searchUsers" ? "active" : ""}`}
+            onClick={() => setActiveTab("searchUsers")}
+          >
+            <Search size={18} />
+            <span>Search Users</span>
+          </button>
+        </div>
+  
+        {/* Tab Content */}
+        <div className="tab-content-container">
+          {activeTab === "posts" && (
+            <DisplayPosts 
+              posts={posts} 
+              avatar={profile.avatar} 
+              username={profile.name}
+              onDeletePost={handleDeletePost}
+              isCurrentUser={true}
+            />
+          )}
+  
+          {activeTab === "addPost" && (
+            <div className="add-post-container">
+              <AddPost
+                userId={profile.id}
+                onClose={() => { 
+                  fetchPosts(); 
+                  setActiveTab("posts"); 
+                  fetchProfile(); 
+                }}
+              />
+            </div>
+          )}
+  
+          {activeTab === "searchUsers" && (
+            <div className="search-users-container">
+              <SearchUsers 
+                currentUserId={profile.id} 
+                refreshProfile={fetchProfile}
+              />
+            </div>
           )}
         </div>
       </div>
-
-      {/* Tab Navigation */}
-      <div className="tab-navigation">
-        <button
-          className={`tab-button ${activeTab === "posts" ? "active" : ""}`}
-          onClick={() => setActiveTab("posts")}
-        >
-          <Image size={18} />
-          Posts
-        </button>
-        <button
-          className={`tab-button ${activeTab === "addPost" ? "active" : ""}`}
-          onClick={() => setActiveTab("addPost")}
-        >
-          <Image size={18} />
-          Add Post
-        </button>
-        <button
-          className={`tab-button ${activeTab === "searchUsers" ? "active" : ""}`}
-          onClick={() => setActiveTab("searchUsers")}
-        >
-          <Search size={18} />
-          Search Users
-        </button>
-      </div>
-
-      {/* Tab Content */}
-      <div className="tab-content">
-        {activeTab === "posts" && (
-          <DisplayPosts 
-            posts={posts} 
-            avatar={profile.avatar} 
-            username={profile.name}
-            onDeletePost={handleDeletePost}
-            isCurrentUser={true} // Assuming this is the current user's profile
-          />
-        )}
-
-        {activeTab === "addPost" && (
-          <div className="add-post-section">
-            <AddPost
-              userId={profile.id}
-              onClose={() => { fetchPosts(); setActiveTab("posts"); fetchProfile() }}
-            />
-          </div>
-        )}
-
-        {activeTab === "searchUsers" && (
-          <div className="search-users-section">
-            <SearchUsers currentUserId={profile.id} refreshProfile={fetchProfile}/>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
+    );
+  };
 
 export default ProfilePage;

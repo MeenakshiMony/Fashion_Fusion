@@ -14,18 +14,14 @@ const Navbar = () => {
     const token = localStorage.getItem('authToken');
     setToken(token);
     console.log("Token: ", token);
-  }, [location]); // Ensure token is checked on each navigation
-
-  
-
+  }, [location]);
 
   const handleLogout = () => {
     localStorage.removeItem('authToken');
     setToken(null);
-    // Add a slight delay to ensure state is updated before navigation
-  setTimeout(() => {
-    navigate('/login');
-  }, 100);
+    setTimeout(() => {
+      navigate('/login');
+    }, 100);
   };
 
   const toggleMenu = () => {
@@ -45,21 +41,17 @@ const Navbar = () => {
         <li><Link to="/stylist" onClick={toggleMenu}>Virtual Stylist</Link></li>
         <li><Link to="/tryon" onClick={toggleMenu}>Virtual Try-On</Link></li>
         <li><Link to="/community" onClick={toggleMenu}>Community</Link></li>
-        
-        {/* <li><Link to="/login" onClick={toggleMenu}>Login</Link></li>
-        <li><Link to="/Signup" onClick={toggleMenu}>Sign Up</Link></li> */}
         {token ? (
-        <>
-          <Link to="/profile" onClick={toggleMenu}>Profile</Link>
-          <Link to="#" onClick={() => { toggleMenu(); handleLogout(); }}>Logout</Link>
-
-        </>
-      ) : (
-        <>
-          <Link to="/login" onClick={toggleMenu}>Login</Link>
-          <Link to="/signup" onClick={toggleMenu}>Signup</Link>
-        </>
-      )}
+          <>
+            <li><Link to="/profile" onClick={toggleMenu}>Profile</Link></li>
+            <li><Link to="#" onClick={() => { toggleMenu(); handleLogout(); }}>Logout</Link></li>
+          </>
+        ) : (
+          <>
+            <li><Link to="/login" onClick={toggleMenu}>Login</Link></li>
+            <li><Link to="/signup" onClick={toggleMenu}>Signup</Link></li>
+          </>
+        )}
       </ul>
     </nav>
   );

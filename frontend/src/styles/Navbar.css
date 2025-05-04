@@ -1,3 +1,9 @@
+/* Reset default margin and padding */
+body {
+  margin: 0;
+  padding: 0;
+}
+
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -5,6 +11,11 @@
   padding: 15px 20px;
   background-color: #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: fixed; /* Make navbar stick to the top */
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000; /* Ensure it stays above other content */
 }
 
 .logo a {
@@ -18,6 +29,8 @@
   list-style: none;
   display: flex;
   gap: 20px;
+  margin: 0;
+  padding: 0;
 }
 
 .nav-links a {
@@ -39,7 +52,6 @@
 .menu-toggle:hover {
   color: #007BFF; 
 }
-
 
 @media (max-width: 768px) {
   .menu-toggle {

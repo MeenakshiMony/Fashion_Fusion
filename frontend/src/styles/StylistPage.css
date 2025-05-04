@@ -1,4 +1,7 @@
 /* Recommendation Grid */
+.stylist-page{
+  padding-top: 70px;
+}
 .recommendation-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));

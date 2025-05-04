@@ -165,6 +165,7 @@ const CommunityPage = () => {
 
       <section className="social-feed">
         <h2>Latest Posts</h2>
+        <div className='posts-grid'>
         {Array.isArray(filteredPosts) && filteredPosts.length > 0 ? (
           filteredPosts.map((post) => (
             <div key={post._id} className="post-card">
@@ -220,6 +221,7 @@ const CommunityPage = () => {
         ) : (
           <p>No posts available{selectedCategory !== 'All' ? ` in ${selectedCategory} category` : ''}</p>
         )}
+        </div>
       </section>
     </div>
   );
