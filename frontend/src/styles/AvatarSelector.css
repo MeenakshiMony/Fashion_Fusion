@@ -1,0 +1,89 @@
+
+.avatar-selector {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    border-radius: 12px;
+    background-color: #f8f9fa;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    position: relative;
+  }
+  
+  .avatar-selector h3 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+  
+  .error {
+    color: #e74c3c;
+    background-color: #fadbd8;
+    padding: 10px 15px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 0.9rem;
+  }
+  
+  .avatar-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    justify-content: center;
+  }
+  
+  .avatar-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .avatar-option:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  .avatar-option.selected {
+    background-color: #e3f2fd;
+    border: 2px solid #1976d2;
+  }
+  
+  .avatar-thumbnail {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    transition: all 0.3s ease;
+  }
+  
+  .avatar-option.selected .avatar-thumbnail {
+    border-color: #1976d2;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 600px) {
+    .avatar-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .avatar-thumbnail {
+      width: 80px;
+      height: 80px;
+    }
+  }
+  
+  @media (max-width: 400px) {
+    .avatar-grid {
+      grid-template-columns: 1fr;
+    }
+  }
